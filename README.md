@@ -15,6 +15,7 @@ the `packages` folder from the submitted Pull Request.
 OK, So REALLY HOW?
 ==================
 
+```
  Rack App
     |
     |
@@ -23,8 +24,8 @@ OK, So REALLY HOW?
     |
     |
     v
- Workers (via separate lxc containers)
-
+ Workers (via separate docker(lxc) containers)
+```
 
 Needed Infrastructure
 =====================
