@@ -1,39 +1,13 @@
+# GitHub Post Commit Server
 
-Purpose
-=======
+This is a template server for using with the github callbacks. Extend it, make
+it your own, enjoy it. I've added a rackup for those of you that would prefer
+to use an evented server for this application. (It's kinda ideal in this case)
 
-This repo is for setting up a cloud based system to accecpt GH hook callbacks
-and generate ember assets without evaluating any insecure project files.
+Sadly, the way rubygems packs up binaries, I will need some assistance making
+the rackup work from the default binary install path.
 
-How
-===
+For more details please see the following guide on GitHub:
+http://help.github.com/post-receive-hooks
 
-We will be using a known good version of the build system (in other words we will
-use the master branch of https://github.com/emberjs/ember.js) and only replace the
-the `packages` folder from the submitted Pull Request.
-
-OK, So REALLY HOW?
-==================
-
-```
- Rack App
-    |
-    |
-    v
- Sidekiq (backed by Redis)
-    |
-    |
-    v
- Workers (via separate docker(lxc) containers)
-```
-
-Needed Infrastructure
-=====================
-
-We will need a single small EC2 instance running a few different Docker containers:
-
-Redis Container
-Rack App Container
-Workers
-  Asset Builder Container
-  SauceLabs Worker Container
+And please, take a look at the source, that's what it's there for.

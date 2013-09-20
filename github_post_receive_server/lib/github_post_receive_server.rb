@@ -1,2 +1,0 @@
-require 'github_post_receive_server/rack_app'
-require 'github_post_receive_server/workers/asset_building_worker'

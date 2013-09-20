@@ -1,4 +1,4 @@
-module GithubPostReceiveServer
+module EmberSecureBuilder
   class AssetBuildingWorker
     include Sidekiq::Worker
 

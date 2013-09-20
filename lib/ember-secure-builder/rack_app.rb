@@ -11,7 +11,7 @@
 require 'rack'
 require 'yajl'
 
-module GithubPostReceiveServer
+module EmberSecureBuilder
   class RackApp
 
     # Does what it says on the tin. By default, not much, it just prints the
@@ -20,7 +20,6 @@ module GithubPostReceiveServer
       puts payload unless $TESTING # remove me!
 
       payload           = Yajl::Parser.parse(payload)
-      require 'pry'; binding.pry
       source_repository = payload['pull_request']['head']['repo']['ssh_url']
       source_branch     = payload['pull_request']['head']['ref']
 
