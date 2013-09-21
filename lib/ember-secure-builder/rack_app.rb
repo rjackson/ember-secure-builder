@@ -9,7 +9,7 @@
 #
 
 require 'rack'
-require 'yajl'
+require 'json'
 
 module EmberSecureBuilder
   class RackApp
@@ -19,7 +19,7 @@ module EmberSecureBuilder
     def handle_request(payload)
       puts payload unless $TESTING # remove me!
 
-      payload           = Yajl::Parser.parse(payload)
+      payload           = JSON.parse(payload)
       source_repository = payload['pull_request']['head']['repo']['ssh_url']
       source_branch     = payload['pull_request']['head']['ref']
 
