@@ -1,13 +1,3 @@
-#
-#  rack_app.rb
-#  github_post_commit_server
-#
-#  Example Rack app for http://github.com/guides/post-receive-hooks
-#
-#  Created by James Tucker on 2008-05-11.
-#  Copyright 2008 James Tucker
-#
-
 require 'rack'
 require 'json'
 
