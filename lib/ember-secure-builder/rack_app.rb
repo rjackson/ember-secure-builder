@@ -4,8 +4,6 @@ require 'json'
 module EmberSecureBuilder
   class RackApp
 
-    # Does what it says on the tin. By default, not much, it just prints the
-    # received payload.
     def handle_request(payload)
       puts payload unless $TESTING # remove me!
 
@@ -16,7 +14,6 @@ module EmberSecureBuilder
       AssetBuildingWorker.perform_async(source_repository, source_branch)
     end
 
-    # Call is the entry point for all rack apps.
     def call(env)
       @req = Rack::Request.new(env)
       @res = Rack::Response.new
