@@ -1,3 +1,5 @@
+require 'bundler/setup'
+require 'dotenv/tasks'
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
