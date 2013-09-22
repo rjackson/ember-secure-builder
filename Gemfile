@@ -1,9 +1,15 @@
 source "https://rubygems.org"
 
 gem 'rack'
+gem 'dotenv'
 gem 'sidekiq'
-gem 'yajl'
+gem 'ember-dev', github: 'emberjs/ember-dev',
+                 branch:  :master
+gem "rake-pipeline", github: "livingsocial/rake-pipeline",
+                     branch: :master,
+                     ref: '65b1e744'
+
 
 group :development do
-  gem 'minitest'
+  gem 'minitest', '~> 5.0.0'
 end
