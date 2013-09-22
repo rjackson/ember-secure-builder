@@ -24,7 +24,7 @@ OK, So REALLY HOW?
     |
     |
     v
- Workers (via separate workers)
+ Workers
 ```
 
 Needed Infrastructure
@@ -37,3 +37,18 @@ Rack App (github webhook receiver)
 Workers
   Asset Builder Container
   SauceLabs Worker Container
+
+
+Tasks TODO
+==========
+* Implement AssetBuildingWorker as follows:
+  * Clone known good `ember.js` repo.
+  * Clone 'suspect' PR repo.
+  * Checkout PR branch on 'suspect' repo.
+  * Copy `packages/` directory from 'suspect' repo into known good repo.
+  * Run `rake dist`
+  * Publish assets VIA `EmberDev::Publish.to_s3`.
+  * Queue SauceLabs job.
+* Add SauceLabsWorker
+  * Manage subaccount keys (one key per worker).
+  * Shell out to `grunt-saucelabs` for actual testing.
