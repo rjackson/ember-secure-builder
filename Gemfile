@@ -13,4 +13,5 @@ gem "rake-pipeline", github: "livingsocial/rake-pipeline",
 
 group :development do
   gem 'minitest', '~> 5.0.0'
+  gem 'pry'
 end
