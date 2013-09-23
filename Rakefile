@@ -33,6 +33,17 @@ task :setup_test_repos => :clear_test_repos do
   sh('touch this_also_should_NOT_be_copied')
   sh('git add -A')
   sh('git commit -m "Add some-new-package."')
+
+  Dir.chdir repo_base_path.realpath
+  sh('mkdir -p good_repo/packages/some-good-package')
+  Dir.chdir repo_base_path.join('good_repo').realpath
+  sh('git init .')
+  sh('git config user.email "test@example.com"')
+  sh('git config user.name "Test User"')
+  sh('touch some_good_file')
+  sh('touch packages/some-good-package/some_package_file')
+  sh('git add -A')
+  sh('git commit -m "Initial commit."')
 end
 
 desc "run specs"
