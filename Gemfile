@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem 'rack'
+gem 'rake'
 gem 'dotenv'
 gem 'sidekiq'
 gem 'ember-dev', github: 'emberjs/ember-dev',

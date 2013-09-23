@@ -90,5 +90,6 @@ DEPENDENCIES
   ember-dev!
   minitest (~> 5.0.0)
   rack
+  rake
   rake-pipeline!
   sidekiq
