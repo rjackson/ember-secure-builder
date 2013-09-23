@@ -20,9 +20,10 @@ module EmberSecureBuilder
     end
 
     def clone_suspect_repo
-      command = "git clone --depth=1 --branch=#{suspect_branch} #{suspect_repo} suspect"
+      command = "git clone --quiet --depth=1 --branch=#{suspect_branch} #{suspect_repo} #{work_dir.join('suspect')}"
 
       puts command if debug
+      system(command)
     end
 
     private
@@ -32,7 +33,7 @@ module EmberSecureBuilder
 
       at_exit{ cleanup }
 
-      dir
+      Pathname.new(dir)
     end
 
   end

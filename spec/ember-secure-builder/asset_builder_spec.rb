@@ -3,9 +3,10 @@ require 'spec_helper'
 module EmberSecureBuilder
   describe AssetBuilder do
     let(:suspect_branch) { 'master' }
-    let(:suspect_repo_path) { 'spec/support/suspect_repo_1' }
+    let(:suspect_repo_path) { Pathname.new 'spec/support/test_repos/suspect_repo_1' }
+    let(:suspect_repo_url) { "file://#{suspect_repo_path.realpath}" }
 
-    let(:builder) { AssetBuilder.new(suspect_repo_path, suspect_branch) }
+    let(:builder) { AssetBuilder.new(suspect_repo_url, suspect_branch, debug: false) }
 
     after do
       builder.cleanup
@@ -20,6 +21,8 @@ module EmberSecureBuilder
       end
 
       it "defaults debug to true" do
+        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+
         assert builder.debug, 'debug is not true'
       end
     end
@@ -30,9 +33,9 @@ module EmberSecureBuilder
       end
 
       it "allows a work_dir to be specified" do
-        builder = AssetBuilder.new(suspect_repo_path, suspect_branch, work_dir: 'some/tmp/path')
+        builder = AssetBuilder.new(suspect_repo_url, suspect_branch, work_dir: 'some/tmp/path')
 
-        assert_equal 'some/tmp/path', builder.work_dir
+        assert_equal 'some/tmp/path', builder.work_dir.to_s
       end
     end
 
@@ -62,7 +65,9 @@ module EmberSecureBuilder
       end
 
       it "clones the suspect repo locally" do
-        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+        builder.clone_suspect_repo
+
+        assert File.directory?("#{builder.work_dir}/suspect/packages")
       end
     end
     it "checks out the correct branch of suspect repo"
