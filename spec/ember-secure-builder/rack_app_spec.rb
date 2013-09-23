@@ -2,7 +2,7 @@ require 'uri'
 require 'spec_helper'
 
 module EmberSecureBuilder
-  describe "Rack Post-Receive Server :-P" do
+  describe RackApp do
     let(:server) { RackApp.new }
     let(:request) { Rack::MockRequest.new(server) }
     let(:mock_payload) { File.read('spec/support/sample_github_payload.json') }
