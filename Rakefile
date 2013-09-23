@@ -18,27 +18,21 @@ task :setup_test_repos => :clear_test_repos do
 
   FileUtils.mkdir_p repo_base_path.to_s
   Dir.chdir repo_base_path.realpath
-  sh('mkdir standard_repo')
-  Dir.chdir repo_base_path.join('standard_repo').realpath
+  sh('mkdir -p suspect_repo_1/packages/some-random-package')
+  Dir.chdir repo_base_path.join('suspect_repo_1').realpath
   sh('git init .')
-  sh('touch blahzorz')
   sh('git config user.email "test@example.com"')
   sh('git config user.name "Test User"')
-  sh('git add blahzorz')
-  sh('git commit -m "Added blahzorz."')
-  sh('touch blammo')
-  sh('git add blammo')
-  sh('git commit -m "Added blammo."')
-  sh('git tag rubble')
-
-  Dir.chdir repo_base_path
-  sh('cp -r standard_repo standard_repo_on_branch')
-
-  Dir.chdir repo_base_path.join('standard_repo_on_branch').realpath
-  sh('git checkout -b barney')
-  sh('touch wilma')
-  sh('git add wilma')
-  sh('git commit -m "Add wilma."')
+  sh('touch this_should_NOT_be_copied')
+  sh('touch packages/some-random-package/this_should_be_copied')
+  sh('git add -A')
+  sh('git commit -m "Initial commit."')
+  sh('git checkout -b some_feature_branch')
+  sh('mkdir -p packages/some-new-package/')
+  sh('touch packages/some-new-package/this_should_be_copied')
+  sh('touch this_also_should_NOT_be_copied')
+  sh('git add -A')
+  sh('git commit -m "Add some-new-package."')
 end
 
 desc "run specs"
