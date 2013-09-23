@@ -25,12 +25,22 @@ module EmberSecureBuilder
     end
 
     def clone_repos
-      clone_suspect_repo && clone_good_repo
+      @cloned ||= clone_suspect_repo && clone_good_repo
     end
 
     def copy_suspect_packages
+      clone_repos
+
       FileUtils.rm_r good_repo_local_path.join('packages')
       FileUtils.cp_r suspect_repo_local_path.join('packages').to_s, good_repo_local_path.to_s
+    end
+
+    def build
+      clone_repos
+
+      Dir.chdir good_repo_local_path do
+        system('rake dist')
+      end
     end
 
     private

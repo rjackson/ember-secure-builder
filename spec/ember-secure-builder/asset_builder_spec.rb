@@ -94,10 +94,6 @@ module EmberSecureBuilder
     end
 
     describe "copy_suspect_packages" do
-      before do
-        builder.clone_repos
-      end
-
       it "copies the packages/ dir from suspect into good" do
         builder.copy_suspect_packages
 
@@ -117,7 +113,29 @@ module EmberSecureBuilder
       end
     end
 
-    it "generates the correct dist files"
-    it "publishes the dist files to S3"
+    describe 'build' do
+      before do
+        builder.clone_repos
+
+        def builder.system(command)
+          @commands ||= []
+          @commands << {command: command, env: ENV, cwd: Dir.getwd}
+        end
+        def builder.system_commands_called; @commands; end
+      end
+
+      it "calls rake dist from the good repo dir" do
+        builder.build
+
+        command = builder.system_commands_called.first
+
+        assert_equal command[:command], 'rake dist'
+        assert_equal command[:cwd], builder.work_dir.join('good').realpath.to_s
+      end
+    end
+
+    describe 'publish' do
+      it "publishes the dist files to S3"
+    end
   end
 end
