@@ -6,7 +6,15 @@ module EmberSecureBuilder
     let(:suspect_repo_path) { Pathname.new 'spec/support/test_repos/suspect_repo_1' }
     let(:suspect_repo_url) { "file://#{suspect_repo_path.realpath}" }
 
-    let(:builder) { AssetBuilder.new(suspect_repo_url, suspect_branch, debug: false) }
+    let(:good_branch) { 'master' }
+    let(:good_repo_path) { Pathname.new 'spec/support/test_repos/good_repo' }
+    let(:good_repo_url) { "file://#{good_repo_path.realpath}" }
+
+    let(:builder) do
+      AssetBuilder.new(suspect_repo_url, suspect_branch,
+                       good_repo: good_repo_url, good_branch: good_branch,
+                       debug: false)
+    end
 
     after do
       builder.cleanup
@@ -24,6 +32,18 @@ module EmberSecureBuilder
         builder = AssetBuilder.new('blah blah', 'foo bar branch')
 
         assert builder.debug, 'debug is not true'
+      end
+
+      it "defaults the good_repo to emberjs/ember.js" do
+        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+
+        assert_equal 'git@github.com:emberjs/ember.js.git', builder.good_repo
+      end
+
+      it "defaults the good_batch to master" do
+        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+
+        assert_equal 'master', builder.good_branch
       end
     end
 
@@ -59,20 +79,44 @@ module EmberSecureBuilder
       end
     end
 
-    describe 'clone_suspect_repo' do
-      it "exists" do
-        assert_respond_to builder, :clone_suspect_repo
+    describe 'clone_repos' do
+      before do
+        builder.clone_repos
       end
 
       it "clones the suspect repo locally" do
-        builder.clone_suspect_repo
+        assert File.directory?("#{builder.work_dir}/suspect/packages/some-random-package")
+      end
 
-        assert File.directory?("#{builder.work_dir}/suspect/packages")
+      it "clones the good repo locally" do
+        assert File.directory?("#{builder.work_dir}/good/packages/some-good-package")
       end
     end
-    it "checks out the correct branch of suspect repo"
-    it "clones the good repo locally"
-    it "copies the suspect repos packages/ dir into good repo"
+
+    describe "copy_suspect_packages" do
+      before do
+        builder.clone_repos
+      end
+
+      it "copies the packages/ dir from suspect into good" do
+        builder.copy_suspect_packages
+
+        assert File.directory?("#{builder.work_dir}/good/packages/some-random-package")
+      end
+
+      it "removes any packages from good" do
+        builder.copy_suspect_packages
+
+        refute File.directory?("#{builder.work_dir}/good/packages/some-good-package")
+      end
+
+      it "does not copy anything from suspect other than packages/" do
+        builder.copy_suspect_packages
+
+        refute File.directory?("#{builder.work_dir}/good/this_should_NOT_be_copied")
+      end
+    end
+
     it "generates the correct dist files"
     it "publishes the dist files to S3"
   end
