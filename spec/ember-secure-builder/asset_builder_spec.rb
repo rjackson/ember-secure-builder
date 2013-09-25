@@ -184,7 +184,6 @@ module EmberSecureBuilder
         s3_object = fake_bucket.objects.values.first
         assert_equal({content_type: 'text/javascript'}, s3_object.options)
       end
-
     end
 
     describe "#asset_source_path" do
