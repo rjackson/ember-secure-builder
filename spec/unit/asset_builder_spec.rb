@@ -132,7 +132,7 @@ module EmberSecureBuilder
 
         command = builder.system_commands_called.first
 
-        assert_equal command[:command], 'rake dist'
+        assert_equal command[:command], 'bundle install && bundle exec rake dist'
         assert_equal command[:cwd], builder.work_dir.join('good').realpath.to_s
       end
     end
