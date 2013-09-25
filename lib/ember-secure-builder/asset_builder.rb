@@ -5,7 +5,9 @@ module EmberSecureBuilder
   class AssetBuilder
     attr_accessor :suspect_repo, :suspect_branch,
                   :good_repo,    :good_branch,
-                  :work_dir, :debug
+                  :work_dir,     :debug,
+                  :asset_source_path,
+                  :asset_destination_path
 
     def initialize(suspect_repo_url, suspect_repo_branch, options = nil)
       options ||= {}
@@ -18,6 +20,9 @@ module EmberSecureBuilder
 
       self.debug       = options.fetch(:debug) { true }
       self.work_dir    = options.fetch(:work_dir) { build_work_dir }
+
+      self.asset_source_path      = options[:asset_source_path]
+      self.asset_destination_path = options[:asset_destination_path]
     end
 
     def cleanup
@@ -41,6 +46,21 @@ module EmberSecureBuilder
       Dir.chdir good_repo_local_path do
         system('rake dist')
       end
+    end
+
+    def asset_source_path
+      @asset_source_path ||= good_repo_local_path.join('dist/ember.js')
+    end
+
+    def asset_destination_path
+      @asset_destination_path ||= 'somepath'
+    end
+
+    def upload(options = {})
+      bucket = options.fetch(:bucket) { build_s3_bucket(options) }
+
+      obj = bucket.objects[asset_destination_path]
+      obj.write(asset_source_path, {:content_type => 'text/javascript'})
     end
 
     private
@@ -77,16 +97,14 @@ module EmberSecureBuilder
       Pathname.new(dir)
     end
 
-    def upload(source_path, destination_path)
-      secret_vars = Dotenv::Environment.new('.env')
+    def build_s3_bucket(options)
+      secrets     = options.fetch(:secure_vars) { Dotenv::Environment.new('.env') }
+      bucket_name = options.fetch(:bucket_name) { secrets['S3_BUCKET_NAME'] }
 
-      s3 = AWS::S3.new(:access_key_id     => secret_vars['S3_ACCESS_KEY_ID'],
-                       :secret_access_key => secret_vars['S3_SECRET_ACCESS_KEY'])
+      s3 = AWS::S3.new(:access_key_id => secrets['S3_ACCESS_KEY_ID'],
+                       :secret_access_key => secrets['S3_SECRET_ACCESS_KEY'])
 
-      bucket = s3.buckets[secret_vars['S3_BUCKET_NAME']]
-
-      obj = bucket.objects[destination_path]
-      obj.write(source_path, {:content_type => 'text/javascript'})
+      s3.buckets[bucket_name]
     end
   end
 end

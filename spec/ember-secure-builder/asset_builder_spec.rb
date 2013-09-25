@@ -1,5 +1,8 @@
 require 'spec_helper'
 
+require_relative '../support/mock_s3_classes'
+
+
 module EmberSecureBuilder
   describe AssetBuilder do
     let(:suspect_branch) { 'master' }
@@ -134,9 +137,67 @@ module EmberSecureBuilder
       end
     end
 
-    describe 'publish' do
-      it "publishes the dist files to S3" do
+    describe 'upload' do
+      let(:fake_bucket) { TestSupport::MockS3Bucket.new }
 
+      before do
+        def builder.build_s3_bucket(opts)
+          @build_s3_bucket_called = true
+          TestSupport::MockS3Bucket.new
+        end
+
+        def builder.build_s3_bucket_called
+          @build_s3_bucket_called
+        end
+      end
+
+      it "calls build_s3_bucket if no bucket is provided" do
+        builder.upload
+
+        assert builder.build_s3_bucket_called
+      end
+
+      it "uses the bucket if provided" do
+        builder.upload(:bucket => fake_bucket)
+
+        refute builder.build_s3_bucket_called
+      end
+
+      it "uploads a file" do
+        builder.upload(:bucket => fake_bucket)
+
+        assert_equal 1, fake_bucket.objects.length
+      end
+
+      it "sets the correct source and destination paths" do
+        builder.upload(:bucket => fake_bucket)
+
+        s3_object = fake_bucket.objects.values.first
+
+        assert_equal builder.asset_source_path, s3_object.source_path
+        assert_equal 'somepath', s3_object.path
+      end
+
+      it "sets the correct object options" do
+        builder.upload(:bucket => fake_bucket)
+
+        s3_object = fake_bucket.objects.values.first
+        assert_equal({content_type: 'text/javascript'}, s3_object.options)
+      end
+
+    end
+
+    describe "#asset_source_path" do
+      it "should return the provided asset_source_path option" do
+        builder = AssetBuilder.new(suspect_repo_url, suspect_branch,
+                                   good_repo: good_repo_url, good_branch: good_branch,
+                                   debug: false, :asset_source_path => 'foo/bar/path')
+
+        assert_equal 'foo/bar/path', builder.asset_source_path
+      end
+
+      it "should return dist/ember.js in the good repo path by default" do
+        assert_equal builder.work_dir.join('good/dist/ember.js'), builder.asset_source_path
       end
     end
   end
