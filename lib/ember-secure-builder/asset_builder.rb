@@ -9,6 +9,12 @@ module EmberSecureBuilder
                   :asset_source_path,
                   :asset_destination_path
 
+    def self.publish(repository, branch, options = nil)
+      builder = new(repository, branch, options)
+      builder.build
+      builder.upload
+    end
+
     def initialize(suspect_repo_url, suspect_repo_branch, options = nil)
       options ||= {}
 

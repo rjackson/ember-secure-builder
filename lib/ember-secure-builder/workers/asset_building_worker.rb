@@ -3,7 +3,7 @@ module EmberSecureBuilder
     include Sidekiq::Worker
 
     def perform(repository, branch)
-      puts "Doing something for the #{branch} branch of #{repository}."
+      AssetBuilder.publish(repository, branch)
     end
   end
 end
