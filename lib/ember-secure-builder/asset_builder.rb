@@ -50,7 +50,9 @@ module EmberSecureBuilder
       clone_repos
 
       Dir.chdir good_repo_local_path do
-        system('rake dist')
+        Bundler.with_clean_env do
+          system('bundle install && bundle exec rake dist')
+        end
       end
     end
 
