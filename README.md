@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/rjackson/ember-secure-builder.png?branch=master)](https://travis-ci.org/rjackson/ember-secure-builder)
 
 Purpose
 =======
