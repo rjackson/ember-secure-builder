@@ -135,7 +135,9 @@ module EmberSecureBuilder
     end
 
     describe 'publish' do
-      it "publishes the dist files to S3"
+      it "publishes the dist files to S3" do
+
+      end
     end
   end
 end

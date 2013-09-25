@@ -4,6 +4,7 @@ gem 'rack'
 gem 'rake'
 gem 'dotenv'
 gem 'sidekiq'
+gem 'aws-sdk'
 gem 'ember-dev', github: 'emberjs/ember-dev',
                  branch:  :master
 gem "rake-pipeline", github: "livingsocial/rake-pipeline",

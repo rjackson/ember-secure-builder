@@ -93,6 +93,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aws-sdk
   dotenv
   ember-dev!
   minitest (~> 5.0.0)

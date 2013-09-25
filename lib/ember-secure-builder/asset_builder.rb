@@ -77,5 +77,16 @@ module EmberSecureBuilder
       Pathname.new(dir)
     end
 
+    def upload(source_path, destination_path)
+      secret_vars = Dotenv::Environment.new('.env')
+
+      s3 = AWS::S3.new(:access_key_id     => secret_vars['S3_ACCESS_KEY_ID'],
+                       :secret_access_key => secret_vars['S3_SECRET_ACCESS_KEY'])
+
+      bucket = s3.buckets[secret_vars['S3_BUCKET_NAME']]
+
+      obj = bucket.objects[destination_path]
+      obj.write(source_path, {:content_type => 'text/javascript'})
+    end
   end
 end
