@@ -5,7 +5,7 @@ module EmberSecureBuilder
   describe "AssetBuilder can actually generate Assets." do
     let(:known_good_asset) { @known_good_asset }
     let(:suspect_branch) { 'master' }
-    let(:suspect_repo_url) { "git@github.com:emberjs/ember.js.git" }
+    let(:suspect_repo_url) { "https://github.com/emberjs/ember.js.git" }
 
     before do
       Dir.mktmpdir do |tmpdir|

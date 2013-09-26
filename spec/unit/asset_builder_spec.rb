@@ -40,7 +40,7 @@ module EmberSecureBuilder
       it "defaults the good_repo to emberjs/ember.js" do
         builder = AssetBuilder.new('blah blah', 'foo bar branch')
 
-        assert_equal 'git@github.com:emberjs/ember.js.git', builder.good_repo
+        assert_equal 'https://github.com/emberjs/ember.js.git', builder.good_repo
       end
 
       it "defaults the good_batch to master" do

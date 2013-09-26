@@ -21,7 +21,7 @@ module EmberSecureBuilder
       self.suspect_repo   = suspect_repo_url
       self.suspect_branch = suspect_repo_branch
 
-      self.good_repo   = options.fetch(:good_repo) {  'git@github.com:emberjs/ember.js.git' }
+      self.good_repo   = options.fetch(:good_repo) {  'https://github.com/emberjs/ember.js.git' }
       self.good_branch = options.fetch(:good_branch) {  'master' }
 
       self.debug       = options.fetch(:debug) { true }
