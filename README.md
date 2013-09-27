@@ -43,12 +43,12 @@ Workers
 Tasks TODO
 ==========
 * Implement AssetBuildingWorker as follows:
-  * Clone known good `ember.js` repo.
-  * Clone 'suspect' PR repo.
-  * Checkout PR branch on 'suspect' repo.
-  * Copy `packages/` directory from 'suspect' repo into known good repo.
-  * Run `rake dist`
-  * Publish assets VIA `EmberDev::Publish.to_s3`.
+  * **DONE** Clone known good `ember.js` repo.
+  * **DONE** Clone 'suspect' PR repo.
+  * **DONE** Checkout PR branch on 'suspect' repo.
+  * **DONE** Copy `packages/` directory from 'suspect' repo into known good repo.
+  * **DONE** Run `rake dist`
+  * **DONE** Publish assets VIA `EmberDev::Publish.to_s3`.
   * Queue SauceLabs job.
 * Add SauceLabsWorker
   * Manage subaccount keys (one key per worker).
