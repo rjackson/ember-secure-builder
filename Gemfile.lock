@@ -16,13 +16,12 @@ GIT
 
 GIT
   remote: git://github.com/livingsocial/rake-pipeline.git
-  revision: 65b1e744defa208e313703d89f3453447cc103b2
-  ref: 65b1e744
+  revision: a75d96fbadcc659a35a0ae59212e0bc60b58cc54
   branch: master
   specs:
     rake-pipeline (0.8.0)
       json
-      rake (~> 10.0.0)
+      rake (~> 10.1.0)
       thor
 
 GEM
@@ -66,7 +65,7 @@ GEM
       method_source (~> 0.8)
       slop (~> 3.4)
     rack (1.5.2)
-    rake (10.0.4)
+    rake (10.1.0)
     rake-pipeline-web-filters (0.7.0)
       rack
       rake-pipeline (~> 0.6)
@@ -92,7 +91,6 @@ GEM
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
     uuidtools (2.1.4)
-    vcr (2.4.0)
     webmock (1.9.3)
       addressable (>= 2.2.7)
       crack (>= 0.3.2)
@@ -110,5 +108,4 @@ DEPENDENCIES
   rake
   rake-pipeline!
   sidekiq
-  vcr
   webmock
