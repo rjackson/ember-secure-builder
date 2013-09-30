@@ -12,7 +12,8 @@ gem "rake-pipeline", github: "livingsocial/rake-pipeline",
                      ref: '65b1e744'
 
 
-group :development do
+group :development, :test do
   gem 'minitest', '~> 5.0.0'
+  gem 'webmock'
   gem 'pry'
 end
