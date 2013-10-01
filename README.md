@@ -44,37 +44,6 @@ Sauce Labs Info
 Submitting new jobs via REST API:
 
 ```ruby
-require 'uri'
-require 'net/http'
-
-# loads the ENV vars needed below from a `.env` file
-require 'dotenv'
-Dotenv.load
-
-uri = URI.parse("https://saucelabs.com/rest/v1/#{ENV['SAUCE_LABS_USERNAME']}/js-tests")
-
-http = Net::HTTP.new(uri.host, uri.port)
-http.use_ssl = true
-
-request = Net::HTTP::Post.new(uri.path)
-request.basic_auth(ENV['SAUCE_LABS_USERNAME'], ENV['SAUCE_LABS_ACCESS_KEY'])
-request.add_field('Content-Type', 'application/json')
-request.body = '{
-  "platforms": [
-    ["Windows 7", "iehta", "10"],
-    ["Windows 7", "iehta", "9"],
-    ["Windows 7", "iehta", "8"],
-    ["Windows XP", "iehta", "7"],
-    ["Windows XP", "iehta", "6"],
-    ["Linux", "googlechrome", ""],
-    ["Linux", "firefox", "23"],
-    ["OS X 10.8", "safari", "6"]
-  ],
-  "url": "https://s3.amazonaws.com/rwjblue-ember-dev-test/canary/tests.html",
-  "framework": "qunit"
-}'
-
-response = http.request(request)
 ```
 
 Supporting Info:
