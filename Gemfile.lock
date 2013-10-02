@@ -104,12 +104,14 @@ GEM
     webmock (1.9.3)
       addressable (>= 2.2.7)
       crack (>= 0.3.2)
+    websocket (1.0.7)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   aws-sdk
+  connection_pool
   dotenv
   ember-dev!
   minitest (~> 5.0.0)

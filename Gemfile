@@ -6,6 +6,7 @@ gem 'dotenv'
 gem 'sidekiq'
 gem 'aws-sdk'
 gem 'rest-client'
+gem 'connection_pool'
 gem 'selenium-webdriver'
 gem 'ember-dev', github: 'emberjs/ember-dev',
                  branch:  :master
