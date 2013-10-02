@@ -53,6 +53,12 @@ module EmberSecureBuilder
       self.job_detail = status['js tests'].first
     end
 
+    def completed(force_refresh = false)
+      get_job_detail if force_refresh
+
+      @completed
+    end
+
     def wait_for_completion(options = nil)
       options ||= {}
 
