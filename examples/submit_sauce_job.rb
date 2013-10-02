@@ -13,3 +13,6 @@ sauce.update_job_details
 
 require 'pry'
 binding.pry
+
+# Failed automatic session: https://saucelabs.com/tests/06b687ebc0e54dae84babcac5b045eef
+# Manual session: https://saucelabs.com/tests/0530038e291747389a3c8d1d7f5904e8

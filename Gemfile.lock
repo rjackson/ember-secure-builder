@@ -34,6 +34,8 @@ GEM
       uuidtools (~> 2.1)
     celluloid (0.15.1)
       timers (~> 1.1.0)
+    childprocess (0.3.9)
+      ffi (~> 1.0, >= 1.0.11)
     coderay (1.0.9)
     colored (1.2)
     connection_pool (1.1.0)
@@ -79,7 +81,13 @@ GEM
       redis (~> 3.0.0)
     rest-client (1.6.7)
       mime-types (>= 1.16)
+    rubyzip (0.9.9)
     safe_yaml (0.9.7)
+    selenium-webdriver (2.35.1)
+      childprocess (>= 0.2.5)
+      multi_json (~> 1.0)
+      rubyzip (< 1.0.0)
+      websocket (~> 1.0.4)
     sidekiq (2.14.1)
       celluloid (>= 0.14.1)
       connection_pool (>= 1.0.0)
@@ -110,5 +118,6 @@ DEPENDENCIES
   rake
   rake-pipeline!
   rest-client
+  selenium-webdriver
   sidekiq
   webmock

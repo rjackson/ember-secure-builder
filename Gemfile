@@ -6,6 +6,7 @@ gem 'dotenv'
 gem 'sidekiq'
 gem 'aws-sdk'
 gem 'rest-client'
+gem 'selenium-webdriver'
 gem 'ember-dev', github: 'emberjs/ember-dev',
                  branch:  :master
 gem "rake-pipeline", github: "livingsocial/rake-pipeline",
