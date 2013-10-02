@@ -132,6 +132,7 @@ module EmberSecureBuilder
       let(:passed) { sauce.job_detail['result']['failed'] == 0 }
 
       before do
+        sauce.completed = true
         sauce.job_detail = {"url" => "jobs/#{job_id}", "result"=> {"failed" => [0,1].sample} }
 
         request

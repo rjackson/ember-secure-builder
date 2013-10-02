@@ -1,5 +1,6 @@
 require 'json'
 require 'net/http'
+require 'rest_client'
 
 module EmberSecureBuilder
   class SauceLabsJob
@@ -23,24 +24,19 @@ module EmberSecureBuilder
     end
 
     def base_url
-      "https://saucelabs.com/rest/v1/#{username}"
+      "https://#{username}:#{access_key}@saucelabs.com/rest/v1/#{username}/"
     end
 
     def submit_job
       return submit_job_response if submit_job_response
 
-      uri = URI.parse("#{base_url}/js-tests")
+      request_body = {"platforms" => [[os, browser, browser_version]],
+                      "url" => test_url, "framework" => "qunit"}
 
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
+      response = RestClient.post base_url + 'js-tests', request_body.to_json,
+                                 :content_type => :json, :accept => :json
 
-      request = Net::HTTP::Post.new(uri.path)
-      request.basic_auth(username, access_key)
-      request.add_field('Content-Type', 'application/json')
-      request.body = {"platforms" => [[os, browser, browser_version]],
-                      "url" => test_url, "framework" => "qunit"}.to_json
-
-      self.submit_job_response = http.request(request).body
+      self.submit_job_response = response.body
     end
 
     def job_detail
@@ -48,19 +44,10 @@ module EmberSecureBuilder
     end
 
     def get_job_detail
-      uri = URI.parse("#{base_url}/js-tests/status")
+      response = RestClient.post base_url + 'js-tests/status', submit_job_response,
+                                 :content_type => :json, :accept => :json
 
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-
-      request = Net::HTTP::Post.new(uri.path)
-      request.basic_auth(username, access_key)
-      request.add_field('Content-Type', 'application/json')
-      request.body = submit_job_response
-
-      response  = http.request(request)
-
-      status = JSON.parse(response.body)
+      status = JSON.parse response.body
 
       self.completed  = status['completed']
       self.job_detail = status['js tests'].first
@@ -95,23 +82,14 @@ module EmberSecureBuilder
     def update_job_details
       body = {tags: tags, build: name}
 
-      run_id = job_detail['url'][%r{jobs/.+$}]
+      job_id = job_detail['url'][%r{jobs/.+$}]
 
       if completed
         body[:passed] = passed?
       end
 
-      uri = URI.parse("#{base_url}/#{run_id}")
-
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-
-      request = Net::HTTP::Put.new(uri.path)
-      request.basic_auth(username, access_key)
-      request.add_field('Content-Type', 'application/json')
-      request.body = body.to_json
-
-      response = http.request(request)
+      response = RestClient.put base_url + job_id, body.to_json,
+                                 :content_type => :json, :accept => :json
     end
   end
 end
