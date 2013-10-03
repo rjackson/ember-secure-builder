@@ -15,7 +15,7 @@ module EmberSecureBuilder
     end
 
     def initialize(options = nil)
-      options ||= {}
+      options = symbolize_hash_keys(options)
 
       self.env        = options.fetch(:env)        { ENV }
 
@@ -100,6 +100,14 @@ module EmberSecureBuilder
       pass_fail_prefix = passed? ? 'Tests Passed! ' : 'Tests Failed! '
 
       puts "#{pass_fail_prefix} (#{platform} - #{browser} - #{version})"
+    end
+
+    private
+
+    def symbolize_hash_keys(input)
+      input ||= {}
+
+      Hash[input.map{|key, value| [key.to_sym, value]}]
     end
   end
 end

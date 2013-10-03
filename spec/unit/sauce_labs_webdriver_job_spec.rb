@@ -30,6 +30,14 @@ module EmberSecureBuilder
     let(:browser)  { "internet_explorer" }
     let(:version)  { "10" }
 
+    describe "#initialize" do
+      it "converts the hash's keys to sym before accessing." do
+        sauce = SauceLabsWebdriverJob.new "url" => 'something random'
+
+        assert_equal 'something random', sauce.url
+      end
+    end
+
     describe "#username" do
       it "accepts the SauceLabsWebdriverJob username on init" do
         sauce = SauceLabsWebdriverJob.new(username: 'blah')
