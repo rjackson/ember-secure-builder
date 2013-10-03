@@ -123,6 +123,7 @@ module EmberSecureBuilder
     describe "#run!" do
       before do
         def sauce.navigate_to_url; @method_calls ||= []; @method_calls << :navigate_to_url; end
+        def sauce.hide_passing_tests; @method_calls ||= []; @method_calls << :hide_passing_tests; end
         def sauce.wait_for_completion; @method_calls ||= []; @method_calls << :wait_for_completion; end
         def sauce.save_result; @method_calls ||= []; @method_calls << :save_result; end
         def sauce.quit_driver; @method_calls ||= []; @method_calls << :quit_driver; end
@@ -133,9 +134,9 @@ module EmberSecureBuilder
       it "calls methods in correct order" do
         sauce.run!
 
-        expected_method_calls = [:navigate_to_url, :wait_for_completion,
-                                 :save_result, :quit_driver,
-                                 :print_message_to_console]
+        expected_method_calls = [:navigate_to_url, :hide_passing_tests,
+                                 :wait_for_completion, :save_result,
+                                 :quit_driver, :print_message_to_console]
 
         assert_equal expected_method_calls, sauce.method_calls
       end
