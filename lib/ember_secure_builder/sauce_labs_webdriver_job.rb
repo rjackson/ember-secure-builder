@@ -90,8 +90,6 @@ module EmberSecureBuilder
       last_assertion_time       = Time.at(last_assertion_millis/1000)
       time_since_last_assertion = Time.now - last_assertion_time
 
-      puts "last_assertion_time: #{last_assertion_time}; time_since_last_assertion: #{time_since_last_assertion}"
-
       last_assertion_time && time_since_last_assertion > timeout
     end
 
