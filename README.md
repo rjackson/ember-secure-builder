@@ -36,31 +36,13 @@ We will need a single small EC2 instance running a few different services/worker
 Redis Server
 Rack App (github webhook receiver)
 Workers
-  Asset Builder Container
-  SauceLabs Worker Container
-
-Sauce Labs Info
-===============
-Submitting new jobs via REST API:
-
-```ruby
-```
-
-Supporting Info:
-  * https://saucelabs.com/docs/rest#jsunit
-  * https://github.com/saucelabs/sauce_whisk (REST API gem)
-  * http://saucelabs.com/docs/status-images
+  Asset Builder
+  SauceLabs Worker
 
 Tasks TODO
 ==========
-* Implement AssetBuildingWorker as follows:
-  * **DONE** Clone known good `ember.js` repo.
-  * **DONE** Clone 'suspect' PR repo.
-  * **DONE** Checkout PR branch on 'suspect' repo.
-  * **DONE** Copy `packages/` directory from 'suspect' repo into known good repo.
-  * **DONE** Run `rake dist`
-  * **DONE** Publish assets VIA `EmberDev::Publish.to_s3`.
-  * Queue SauceLabs job.
-* Add SauceLabsWorker
-  * Manage subaccount keys (one key per worker).
-  * Shell out to `grunt-saucelabs` for actual testing.
+* Implement Hooks for Asset Build (to be used by Travis not Github).
+* Queue Sauce Labs jobs after asset build is completed.
+* Create UI for reviewing historical Sauce Labs runs for a specific build.
+  * Possibly a Simple Rack App serving JSON out of Redis to an Ember app.
+  * Needs to show browsers along with failure status and any errors.
