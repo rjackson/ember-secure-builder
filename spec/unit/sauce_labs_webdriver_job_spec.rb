@@ -17,6 +17,8 @@ module EmberSecureBuilder
                                 version: version,
                                 url: url,
                                 name: job_name,
+                                build: build,
+                                tags: tags,
                                 capabilities_class: mock_capabilities_class,
                                 driver_class: mock_driver_class)
     end
@@ -29,6 +31,8 @@ module EmberSecureBuilder
     let(:platform) { "Windows 7" }
     let(:browser)  { "internet_explorer" }
     let(:version)  { "10" }
+    let(:build)    { SecureRandom.urlsafe_base64 }
+    let(:tags)     { [] }
 
     describe "#initialize" do
       it "converts the hash's keys to sym before accessing." do
@@ -98,7 +102,9 @@ module EmberSecureBuilder
     describe "#capabilities" do
       it "should create a browser specific capabilities instance" do
         mock_capabilities_class.expect browser, 'called mock capabilities',
-          [{:version => version, :platform => platform, :name => job_name}]
+          [{:version => version, :platform => platform,
+            :name => job_name, :build => build, :tags => tags,
+            'max-capabilities' => 2700}]
 
         assert_equal 'called mock capabilities', sauce.capabilities
 
@@ -111,8 +117,12 @@ module EmberSecureBuilder
 
       it "should create a driver" do
         def sauce.capabilities; 'mocked_capabilities'; end
+        def sauce.http_client; 'mocked http_client'; end
+
         mock_driver_class.expect(:for, true,
-            [:remote, {:url => sauce_url, :desired_capabilities => 'mocked_capabilities'}])
+            [:remote, {:url => sauce_url,
+                       :desired_capabilities => 'mocked_capabilities',
+                       :http_client => 'mocked http_client'}])
 
         sauce.driver
 

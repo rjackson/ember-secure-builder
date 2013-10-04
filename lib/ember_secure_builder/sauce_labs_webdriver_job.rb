@@ -37,13 +37,24 @@ module EmberSecureBuilder
     end
 
     def capabilities
-      @capabilities ||= capabilities_class.send(browser.to_sym, {:version => version, :platform => platform, :name => name})
+      @capabilities ||= capabilities_class.send(browser.to_sym,
+                                                {:version => version,
+                                                 :platform => platform,
+                                                 :name => name,
+                                                 :build => build,
+                                                 :tags => tags,
+                                                 'max-duration' => 2700})
     end
 
     def driver
       @driver ||= driver_class.for :remote,
-        :url => "http://#{username}:#{access_key}@ondemand.saucelabs.com:80/wd/hub",
-      :desired_capabilities => capabilities
+                                   :url => "http://#{username}:#{access_key}@ondemand.saucelabs.com:80/wd/hub",
+                                   :desired_capabilities => capabilities,
+                                   :http_client => http_client
+    end
+
+    def http_client
+      @http_client ||= build_http_client
     end
 
     def quit_driver
@@ -125,6 +136,12 @@ module EmberSecureBuilder
       input ||= {}
 
       Hash[input.map{|key, value| [key.to_sym, value]}]
+    end
+
+    def build_http_client
+      client = Selenium::WebDriver::Remote::Http::Default.new
+      client.timeout = 180
+      client
     end
   end
 end
