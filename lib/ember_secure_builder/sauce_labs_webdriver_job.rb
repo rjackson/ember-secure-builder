@@ -82,9 +82,11 @@ module EmberSecureBuilder
       driver.execute_script("arguments[0].className = ' hidepass'", element)
     end
 
-    def wait_for_completion(timeout = 90, sleep_time = 2, options = nil)
+    def wait_for_completion(options = nil)
       options ||= {}
 
+      timeout         = options.fetch(:timeout, 90)
+      sleep_time      = options.fetch(:sleep_time, 2)
       break_on_result = options.fetch(:break_on_result, true)
 
       start = Time.now
