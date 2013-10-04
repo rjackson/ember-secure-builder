@@ -43,7 +43,8 @@ module EmberSecureBuilder
                                                  :name => name,
                                                  :build => build,
                                                  :tags => tags,
-                                                 'max-duration' => 2700})
+                                                 'max-duration' => 3600,
+                                                 "record-video" => false})
     end
 
     def driver
@@ -67,6 +68,7 @@ module EmberSecureBuilder
       wait_for_completion
       save_result
       quit_driver
+      wait_for_completion break_on_result: false
 
       print_message_to_console
     end
@@ -80,15 +82,24 @@ module EmberSecureBuilder
       driver.execute_script("arguments[0].className = ' hidepass'", element)
     end
 
-    def wait_for_completion(timeout = 60, sleep_time = 2)
+    def wait_for_completion(timeout = 90, sleep_time = 2, options = nil)
+      options ||= {}
+
+      break_on_result = options.fetch(:break_on_result, true)
+
       start = Time.now
 
       loop do
         elapsed_time   = Time.now - start
 
-        break if result
-        break if assertion_timeout? timeout
-        puts "Waiting for completion (#{elapsed_time}s)"
+        if break_on_result
+          break if last_assertion_millis.nil? && elapsed_time > 90
+          break if assertion_timeout? timeout
+          break if result
+        else
+          break if completed?
+        end
+
         sleep sleep_time
       end
     end
@@ -97,7 +108,9 @@ module EmberSecureBuilder
       @result ||= driver.execute_script("return window.globalTestResults;")
     end
 
-    def assertion_timeout?(timeout)
+    def assertion_timeout?(timeout, last_assertion_millis = last_assertion_millis)
+      return unless last_assertion_millis
+
       last_assertion_time       = Time.at(last_assertion_millis/1000)
       time_since_last_assertion = Time.now - last_assertion_time
 
@@ -117,11 +130,9 @@ module EmberSecureBuilder
     end
 
     def save_result
-      url = "https://#{username}:#{access_key}@saucelabs.com/rest/v1/#{username}/jobs/#{job_id}"
-
       body = {passed: passed?, custom_data: result, build: build}
 
-      RestClient.put url, body.to_json, :content_type => :json, :accept => :json
+      RestClient.put sauce_labs_job_url, body.to_json, :content_type => :json, :accept => :json
     end
 
     def print_message_to_console
@@ -130,7 +141,18 @@ module EmberSecureBuilder
       puts "#{pass_fail_prefix} (#{platform} - #{browser} - #{version})"
     end
 
+    def completed?
+      response = RestClient.get sauce_labs_job_url, :content_type => :json, :accept => :json
+      payload  = JSON.parse(response.body)
+
+      payload['status'] == 'complete'
+    end
+
     private
+
+    def sauce_labs_job_url
+      "https://#{username}:#{access_key}@saucelabs.com/rest/v1/#{username}/jobs/#{job_id}"
+    end
 
     def symbolize_hash_keys(input)
       input ||= {}

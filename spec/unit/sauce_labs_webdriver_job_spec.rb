@@ -104,7 +104,7 @@ module EmberSecureBuilder
         mock_capabilities_class.expect browser, 'called mock capabilities',
           [{:version => version, :platform => platform,
             :name => job_name, :build => build, :tags => tags,
-            'max-capabilities' => 2700}]
+            'max-duration' => 3600, 'record-video' => false}]
 
         assert_equal 'called mock capabilities', sauce.capabilities
 
@@ -134,7 +134,7 @@ module EmberSecureBuilder
       before do
         def sauce.navigate_to_url; @method_calls ||= []; @method_calls << :navigate_to_url; end
         def sauce.hide_passing_tests; @method_calls ||= []; @method_calls << :hide_passing_tests; end
-        def sauce.wait_for_completion; @method_calls ||= []; @method_calls << :wait_for_completion; end
+        def sauce.wait_for_completion(*args); @method_calls ||= []; @method_calls << :wait_for_completion; end
         def sauce.save_result; @method_calls ||= []; @method_calls << :save_result; end
         def sauce.quit_driver; @method_calls ||= []; @method_calls << :quit_driver; end
         def sauce.print_message_to_console; @method_calls ||= []; @method_calls << :print_message_to_console; end
@@ -146,7 +146,8 @@ module EmberSecureBuilder
 
         expected_method_calls = [:navigate_to_url, :hide_passing_tests,
                                  :wait_for_completion, :save_result,
-                                 :quit_driver, :print_message_to_console]
+                                 :quit_driver, :wait_for_completion,
+                                 :print_message_to_console]
 
         assert_equal expected_method_calls, sauce.method_calls
       end
