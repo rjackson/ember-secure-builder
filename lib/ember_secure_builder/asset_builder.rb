@@ -9,6 +9,13 @@ module EmberSecureBuilder
                   :asset_source_path,
                   :asset_destination_path
 
+    def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
+      builder = new
+      builder.load_from_pull_request(repository, pull_request_number)
+      builder.build
+      builder.publish
+    end
+
     def self.publish(options = nil)
       builder = new(options)
       builder.build
@@ -29,6 +36,16 @@ module EmberSecureBuilder
 
       self.asset_source_path      = options[:asset_source_path]
       self.asset_destination_path = options[:asset_destination_path]
+    end
+
+    def load_from_pull_request(repo, pull_request_number)
+      prefix = 'https://github.com/'
+
+      require 'octokit'
+      pr = Octokit.pull_request repo, pull_request_number
+
+      self.suspect_repo = prefix + pr.head.repo.full_name
+      self.suspect_branch = pr.head.ref
     end
 
     def cleanup

@@ -85,6 +85,26 @@ module EmberSecureBuilder
       end
     end
 
+    describe '#load_from_pull_request' do
+      let(:builder) { AssetBuilder.new(debug: false) }
+      let(:main_repo) { 'emberjs/ember.js' }
+      let(:pr_number) { 3481 }
+
+      before do
+        VCR.use_cassette 'load_suspect_from_pull_request' do
+          builder.load_from_pull_request(main_repo, pr_number)
+        end
+      end
+
+      it "can load the suspect_repo" do
+        assert_equal builder.suspect_repo, 'https://github.com/rjackson/ember.js'
+      end
+
+      it "can load the suspect branch" do
+        assert_equal builder.suspect_branch, 'update_ember-dev'
+      end
+    end
+
     describe 'clone_repos' do
       before do
         builder.clone_repos
