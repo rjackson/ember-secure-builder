@@ -9,17 +9,17 @@ module EmberSecureBuilder
                   :asset_source_path,
                   :asset_destination_path
 
-    def self.publish(repository, branch, options = nil)
-      builder = new(repository, branch, options)
+    def self.publish(options = nil)
+      builder = new(options)
       builder.build
       builder.upload
     end
 
-    def initialize(suspect_repo_url, suspect_repo_branch, options = nil)
+    def initialize(options = nil)
       options ||= {}
 
-      self.suspect_repo   = suspect_repo_url
-      self.suspect_branch = suspect_repo_branch
+      self.suspect_repo   = options.fetch(:suspect_repo, nil)
+      self.suspect_branch = options.fetch(:suspect_branch, nil)
 
       self.good_repo   = options.fetch(:good_repo) {  'https://github.com/emberjs/ember.js.git' }
       self.good_branch = options.fetch(:good_branch) {  'master' }

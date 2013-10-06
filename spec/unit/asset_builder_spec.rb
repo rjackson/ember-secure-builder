@@ -14,7 +14,8 @@ module EmberSecureBuilder
     let(:good_repo_url) { "file://#{good_repo_path.realpath}" }
 
     let(:builder) do
-      AssetBuilder.new(suspect_repo_url, suspect_branch,
+      AssetBuilder.new(suspect_repo: suspect_repo_url,
+                       suspect_branch: suspect_branch,
                        good_repo: good_repo_url, good_branch: good_branch,
                        debug: false)
     end
@@ -25,26 +26,26 @@ module EmberSecureBuilder
 
     describe 'initialize' do
       it "accepts the suspect repo and branch" do
-        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert_equal 'blah blah', builder.suspect_repo
         assert_equal 'foo bar branch', builder.suspect_branch
       end
 
       it "defaults debug to true" do
-        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert builder.debug, 'debug is not true'
       end
 
       it "defaults the good_repo to emberjs/ember.js" do
-        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert_equal 'https://github.com/emberjs/ember.js.git', builder.good_repo
       end
 
       it "defaults the good_batch to master" do
-        builder = AssetBuilder.new('blah blah', 'foo bar branch')
+        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert_equal 'master', builder.good_branch
       end
@@ -56,7 +57,9 @@ module EmberSecureBuilder
       end
 
       it "allows a work_dir to be specified" do
-        builder = AssetBuilder.new(suspect_repo_url, suspect_branch, work_dir: 'some/tmp/path')
+        builder = AssetBuilder.new(suspect_repo: suspect_repo_url,
+                                   suspect_branch: suspect_branch,
+                                   work_dir: 'some/tmp/path')
 
         assert_equal 'some/tmp/path', builder.work_dir.to_s
       end
@@ -188,7 +191,7 @@ module EmberSecureBuilder
 
     describe "#asset_source_path" do
       it "should return the provided asset_source_path option" do
-        builder = AssetBuilder.new(suspect_repo_url, suspect_branch,
+        builder = AssetBuilder.new(suspect_repo: suspect_repo_url, suspect_branch: suspect_branch,
                                    good_repo: good_repo_url, good_branch: good_branch,
                                    debug: false, :asset_source_path => 'foo/bar/path')
 
