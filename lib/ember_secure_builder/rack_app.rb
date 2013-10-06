@@ -1,8 +1,9 @@
 require 'rack'
 require 'json'
+require 'sinatra'
 
 module EmberSecureBuilder
-  class RackApp
+  class RackApp < Sinatra::Base
 
     def handle_request(payload)
       puts payload unless $TESTING # remove me!
@@ -14,15 +15,14 @@ module EmberSecureBuilder
       AssetBuildingWorker.perform_async(source_repository, source_branch)
     end
 
-    def call(env)
-      @req = Rack::Request.new(env)
-      @res = Rack::Response.new
+    post '/build' do
+      repo                        = params['repo']
+      pull_request_number         = params['pull_request_number']
+      perform_cross_browser_tests = params['perform_cross_browser_tests']
 
-      payload = @req.POST["payload"]
+      halt 400 unless repo && pull_request_number
 
-      handle_request(payload) if payload
-
-      @res.finish
+      AssetBuildingWorker.perform_async(repo, pull_request_number, perform_cross_browser_tests)
     end
   end
 end

@@ -69,6 +69,8 @@ GEM
     rack (1.5.2)
     rack-protection (1.5.0)
       rack
+    rack-test (0.6.2)
+      rack (>= 1.0)
     rake (10.1.0)
     rake-pipeline-web-filters (0.7.0)
       rack
@@ -124,6 +126,7 @@ DEPENDENCIES
   minitest (~> 5.0.0)
   pry
   rack
+  rack-test
   rake
   rake-pipeline!
   rest-client

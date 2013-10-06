@@ -15,6 +15,7 @@ gem "rake-pipeline", github: "livingsocial/rake-pipeline",
                      branch: :master
 
 group :development, :test do
+  gem 'rack-test'
   gem 'minitest', '~> 5.0.0'
   gem 'webmock'
   gem 'pry'
