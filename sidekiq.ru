@@ -1,0 +1,9 @@
+require 'sidekiq'
+require './lib/ember_secure_builder'
+
+Sidekiq.configure_client do |config|
+  config.redis = { :size => 1 }
+end
+
+require 'sidekiq/web'
+run Rack::URLMap.new('/' => EmberSecureBuilder::RackApp, '/sidekiq' => Sidekiq::Web)
