@@ -24,7 +24,9 @@ module EmberSecureBuilder
 
     describe "with a valid payload" do
       before do
-        post '/build', repo: 'emberjs/ember.js', pull_request_number: '3516'
+        post '/build', repo: 'emberjs/ember.js',
+                       pull_request_number: '3516',
+                       perform_cross_browser_tests: 'true'
 
         assert last_response.ok?
       end
@@ -35,7 +37,7 @@ module EmberSecureBuilder
       end
 
       it "should provide the correct arguments to the queued worker" do
-        expected = ["emberjs/ember.js", "3516"]
+        expected = ["emberjs/ember.js", "3516", 'true']
 
         job = AssetBuildingWorker.jobs.first
 
