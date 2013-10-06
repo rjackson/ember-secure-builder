@@ -24,7 +24,7 @@ module EmberSecureBuilder
     end
 
     it "should match the known good assets" do
-      builder = AssetBuilder.new(suspect_repo_url, suspect_branch)
+      builder = AssetBuilder.new(suspect_repo: suspect_repo_url, suspect_branch: suspect_branch)
 
       assert builder.build
 
