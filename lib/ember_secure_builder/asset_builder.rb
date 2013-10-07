@@ -5,14 +5,14 @@ require 'aws-sdk'
 
 module EmberSecureBuilder
   class AssetBuilder
-    attr_accessor :suspect_repo, :suspect_branch,
-                  :good_repo,    :good_branch,
+    attr_accessor :suspect_repo, :suspect_branch, :project,
                   :work_dir,     :debug, :env,
+                  :project, :good_repo, :good_branch,
                   :asset_source_path, :asset_destination_path,
                   :pull_request_number, :last_suspect_repo_commit
 
     def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
-      builder = new
+      builder = new(repository)
       builder.load_from_pull_request(repository, pull_request_number)
       builder.build
       builder.upload
@@ -22,15 +22,16 @@ module EmberSecureBuilder
       end
     end
 
-    def initialize(options = nil)
-      options ||= {}
+    def initialize(project, options = nil)
+      self.project = project
+
+      options    ||= {}
 
       self.env            = options.fetch(:env) { ENV }
       self.suspect_repo   = options.fetch(:suspect_repo, nil)
       self.suspect_branch = options.fetch(:suspect_branch, nil)
-
-      self.good_repo   = options.fetch(:good_repo) {  'https://github.com/rjackson/ember.js.git' }
-      self.good_branch = options.fetch(:good_branch) {  'static_test_generator' }
+      self.good_repo      = options.fetch(:good_repo, nil)
+      self.good_branch    = options.fetch(:good_branch, nil)
 
       self.debug       = options.fetch(:debug) { true }
       self.work_dir    = options.fetch(:work_dir) { build_work_dir }
@@ -96,9 +97,7 @@ module EmberSecureBuilder
     def upload(options = {})
       bucket = options.fetch(:bucket) { build_s3_bucket }
 
-      files = %w{ember.js ember-spade.js ember-tests.js tests.html}
-
-      files.each do |file|
+      project_files.each do |file|
         type = file.end_with?('.js') ? 'text/javascript' : 'text/html'
 
         obj = bucket.objects[asset_destination_path + "/#{file}"]
@@ -121,7 +120,48 @@ module EmberSecureBuilder
       end
     end
 
+    def good_repo
+      @good_repo ||= default_good_repo
+    end
+
+    def good_branch
+      @good_branch ||= default_good_branch
+    end
+
     private
+
+    def project_details
+      case project
+      when 'emberjs/ember.js'
+        {repo: 'https://github.com/rjackson/ember.js.git',
+         branch: 'static_test_generator',
+         prefix: 'ember',
+         files: %w{ember.js ember-spade.js ember-tests.js ember-tests.html}
+        }
+      when 'emberjs/data'
+        {repo: 'https://github.com/rjackson/data.git',
+         branch: 'static_test_generator',
+         prefix: 'ember-data',
+         files: %w{ember-spade.js ember-data-tests.js ember-data-tests.html}
+        }
+      end
+    end
+
+    def project_prefix
+      project_details[:prefix]
+    end
+
+    def project_files
+      project_details[:files]
+    end
+
+    def default_good_repo
+      project_details[:repo]
+    end
+
+    def default_good_branch
+      project_details[:branch]
+    end
 
     def build_test_url
       "https://s3.amazonaws.com/#{bucket_name}/#{asset_destination_path}/tests.html"
@@ -134,7 +174,6 @@ module EmberSecureBuilder
     def clone_good_repo
       clone_repo good_repo, good_branch, good_repo_local_path
     end
-
 
     def good_repo_local_path
       work_dir.join('good')

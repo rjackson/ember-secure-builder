@@ -5,6 +5,7 @@ require_relative '../support/mock_s3_classes'
 
 module EmberSecureBuilder
   describe AssetBuilder do
+    let(:project) { 'emberjs/ember.js' }
     let(:suspect_branch) { 'master' }
     let(:suspect_repo_path) { Pathname.new 'spec/support/test_repos/suspect_repo_1' }
     let(:suspect_repo_url) { "file://#{suspect_repo_path.realpath}" }
@@ -14,7 +15,7 @@ module EmberSecureBuilder
     let(:good_repo_url) { "file://#{good_repo_path.realpath}" }
 
     let(:builder) do
-      AssetBuilder.new(suspect_repo: suspect_repo_url,
+      AssetBuilder.new(project, suspect_repo: suspect_repo_url,
                        suspect_branch: suspect_branch,
                        good_repo: good_repo_url, good_branch: good_branch,
                        debug: false)
@@ -26,26 +27,26 @@ module EmberSecureBuilder
 
     describe 'initialize' do
       it "accepts the suspect repo and branch" do
-        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
+        builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert_equal 'blah blah', builder.suspect_repo
         assert_equal 'foo bar branch', builder.suspect_branch
       end
 
       it "defaults debug to true" do
-        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
+        builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert builder.debug, 'debug is not true'
       end
 
       it "defaults the good_repo to emberjs/ember.js" do
-        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
+        builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert_equal 'https://github.com/rjackson/ember.js.git', builder.good_repo
       end
 
       it "defaults the good_batch to master" do
-        builder = AssetBuilder.new(suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
+        builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
         assert_equal 'static_test_generator', builder.good_branch
       end
@@ -57,7 +58,7 @@ module EmberSecureBuilder
       end
 
       it "allows a work_dir to be specified" do
-        builder = AssetBuilder.new(suspect_repo: suspect_repo_url,
+        builder = AssetBuilder.new(project, suspect_repo: suspect_repo_url,
                                    suspect_branch: suspect_branch,
                                    work_dir: 'some/tmp/path')
 
@@ -86,7 +87,7 @@ module EmberSecureBuilder
     end
 
     describe '#load_from_pull_request' do
-      let(:builder) { AssetBuilder.new(debug: false) }
+      let(:builder) { AssetBuilder.new(project, debug: false) }
       let(:main_repo) { 'emberjs/ember.js' }
       let(:pr_number) { 3481 }
 
@@ -207,18 +208,36 @@ module EmberSecureBuilder
         assert_equal 4, fake_bucket.objects.length
       end
 
-      it "sets the correct source and destination paths" do
-        builder.upload(:bucket => fake_bucket)
+      describe "sets the correct source and destination paths" do
+        before do
+          builder.upload(:bucket => fake_bucket)
 
-        files = %w{ember.js ember-spade.js ember-tests.js tests.html}
+          files.each do |file|
+            expected_dest = builder.asset_destination_path + "/#{file}"
+            expected_src  = builder.asset_source_path.join(file)
 
-        files.each do |file|
-          expected_dest = builder.asset_destination_path + "/#{file}"
-          expected_src  = builder.asset_source_path.join(file)
+            s3_object = fake_bucket.objects[expected_dest]
 
-          s3_object = fake_bucket.objects[expected_dest]
+            assert_equal expected_src, s3_object.source_path
+          end
+        end
 
-          assert_equal expected_src, s3_object.source_path
+        describe "for emberjs/ember.js" do
+          let(:project) { 'emberjs/ember.js' }
+          let(:files) { %w{ember.js ember-spade.js ember-tests.js ember-tests.html} }
+
+          it "works" do
+            assert_equal files.length, fake_bucket.objects.length
+          end
+        end
+
+        describe "for emberjs/data" do
+          let(:project) { 'emberjs/data' }
+          let(:files) { %w{ember-spade.js ember-data-tests.js ember-data-tests.html} }
+
+          it "works" do
+            assert_equal files.length, fake_bucket.objects.length
+          end
         end
       end
 
@@ -232,7 +251,7 @@ module EmberSecureBuilder
 
     describe "#asset_source_path" do
       it "should return the provided asset_source_path option" do
-        builder = AssetBuilder.new(suspect_repo: suspect_repo_url, suspect_branch: suspect_branch,
+        builder = AssetBuilder.new(project, suspect_repo: suspect_repo_url, suspect_branch: suspect_branch,
                                    good_repo: good_repo_url, good_branch: good_branch,
                                    debug: false, :asset_source_path => 'foo/bar/path')
 
