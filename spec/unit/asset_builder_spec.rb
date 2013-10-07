@@ -245,12 +245,25 @@ module EmberSecureBuilder
     end
 
     describe "#queue_cross_browser_tests" do
+      let(:mock_worker) { Minitest::Mock.new }
+      let(:mock_platforms) { [{foo: 'bar'}, {bin: 'go'}] }
+
       before do
         SauceLabsWorker.jobs.clear
+
+        mock_platforms.each do |hash|
+          mock_worker.expect :perform_async, nil, [Hash]
+        end
+
+        def builder.last_suspect_repo_commit; 'some sha'; end
+        def builder.build_test_url; 'some url'; end
       end
 
       it "queues tests for the default platforms" do
+        builder.queue_cross_browser_tests worker_class: mock_worker,
+                                          platforms: mock_platforms
 
+        mock_worker.verify
       end
     end
   end
