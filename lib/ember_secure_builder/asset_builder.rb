@@ -109,14 +109,9 @@ module EmberSecureBuilder
       options    ||= {}
       platforms    = options.fetch(:platforms) { SauceLabsWebdriverJob.default_platforms }
       worker_class = options.fetch(:worker_class) { SauceLabsWorker }
-      test_url     = options.fetch(:test_url) { build_test_url }
-      build        = options.fetch(:build) { last_suspect_repo_commit }
-      name         = options.fetch(:name) { "PR #{pull_request_number}" }
 
       platforms.each do |platform|
-        worker_class.perform_async(platform.merge(:url   => test_url,
-                                                  :name  => name,
-                                                  :build => build))
+        worker_class.perform_async(platform.merge(cross_browser_test_defaults))
       end
     end
 
@@ -128,6 +123,25 @@ module EmberSecureBuilder
       @good_branch ||= default_good_branch
     end
 
+    def cross_browser_test_defaults
+      tags = [project_prefix]
+
+      if pull_request_number
+        name = "Pull Request ##{pull_request_number}"
+        tags << "PR ##{pull_request_number}"
+      else
+        name = "#{project_name}"
+        tags << "PR ##{pull_request_number}"
+      end
+
+      {
+        :url   => test_url,
+        :name  => name,
+        :build => last_suspect_repo_commit,
+        :tags  => tags
+      }
+    end
+
     private
 
     def project_details
@@ -135,16 +149,22 @@ module EmberSecureBuilder
       when 'emberjs/ember.js'
         {repo: 'https://github.com/rjackson/ember.js.git',
          branch: 'static_test_generator',
+         name: 'Ember',
          prefix: 'ember',
          files: %w{ember.js ember-spade.js ember-tests.js ember-tests.html}
         }
       when 'emberjs/data'
         {repo: 'https://github.com/rjackson/data.git',
          branch: 'static_test_generator',
+         name: 'Ember Data',
          prefix: 'ember-data',
          files: %w{ember-spade.js ember-data-tests.js ember-data-tests.html}
         }
       end
+    end
+
+    def project_name
+      project_details[:name]
     end
 
     def project_prefix
@@ -163,7 +183,7 @@ module EmberSecureBuilder
       project_details[:branch]
     end
 
-    def build_test_url
+    def test_url
       "https://s3.amazonaws.com/#{bucket_name}/#{asset_destination_path}/#{project_prefix}-tests.html"
     end
 
