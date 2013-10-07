@@ -1,22 +1,65 @@
 [![Build Status](https://travis-ci.org/rjackson/ember-secure-builder.png?branch=master)](https://travis-ci.org/rjackson/ember-secure-builder)
 
+Purpose
+=======
+
+To run supporting tasks for Ember development that cannot be done from within
+TravisCI. The tasks are mostly related to publishing builds and cross-browser
+testing at this point, but could extend to just about anything that we need.
+
+The main functions provided now are:
+
+1. To build and publish builds from pull requests.
+
+This must be done carefully to prevent exposing our secret keys to the pull
+request author (and is why Travis disables secure environment variables for
+PR's). The route that we have chosen is to use a known good version of a the
+base repository ('emberjs/ember.js' or 'emberjs/data') and import the `packages`
+from the pull request repo/branch. This prevents any of the pull request's code
+from being executed.
+
+2. To run cross-browser tests.
+
+To ensure that we do not introduce regressions for specific browsers we need to run
+our test suite against all supported browsers. We are using [Sauce Labs](http://saucelabs.com)
+to run the full test suite on each supported browser.
+
+Browsers Tested
+===============
+
+You can check the current default platforms in `lib/ember_secure_builder/sauce_labs_webdriver_job.rb`,
+but the following is the current listing (as of 2013/10/07):
+
+```ruby
+[
+  {:browser => :chrome,            :platform => 'OS X 10.8'},
+  {:browser => :safari,            :platform => 'OS X 10.8',  :version => 6},
+  {:browser => :iphone,            :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
+  {:browser => :ipad,              :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
+  {:browser => :firefox,           :platform => 'Windows 7',  :version => 23},
+  {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
+  {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
+  {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
+]
+```
+
 Usage
 =====
 
-1. Run the `RackApp`:
+Run the `RackApp`:
 
 ```sh
 rackup config.ru
 ```
 
-2. Run the `Sidekiq` worker process:
+Run the `Sidekiq` worker process:
 
 ```sh
 # set concurrency to your maximum number of SauceLabs concurrent workers
 sidekiq --require ./lib/ember_secure_builder.rb --concurrency 2
 ```
 
-3. Post the repository and pull request number you are attempting to test.
+Post the repository and pull request number you are attempting to test (example runs all pull-requests).
 
 ```ruby
 require 'octokit'
@@ -28,12 +71,14 @@ pull_requests.each do |pr|
 end
 ```
 
-4. Watch the SauceLabs site for build pass/fail status: https://saucelabs.com/u/rwjblue
+Watch the SauceLabs site for build pass/fail status: https://saucelabs.com/u/rwjblue
 
 Tasks TODO
 ==========
 * **DONE** Implement Hooks for Asset Build (to be used by Travis not Github).
 * **DONE** Queue Sauce Labs jobs after asset build is completed.
+* Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
+* Create comment in Github to indicate pass/fail status when all workers are done (or incrementally?).
 * Create UI for reviewing historical Sauce Labs runs for a specific build.
   * Save run details to JSON file in S3 in sub-folder of assets directory.
   * Create a simple Ember app to display the status of a given commit/PR.
