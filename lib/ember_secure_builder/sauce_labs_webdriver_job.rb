@@ -10,6 +10,27 @@ module EmberSecureBuilder
       :name, :url, :build, :tags, :env,
       :driver_class, :capabilities_class
 
+    def self.default_platforms
+      [
+        {:browser => :chrome,            :platform => 'OS X 10.8'},
+        {:browser => :safari,            :platform => 'OS X 10.8',  :version => 6},
+        {:browser => :iphone,            :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
+        {:browser => :ipad,              :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
+        {:browser => :android,           :platform => 'Linux',      :version => '4.0', 'device-orientation' => 'landscape'},
+        {:browser => :firefox,           :platform => 'Windows 7',  :version => 23},
+        {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
+        {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
+        {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
+      ]
+    end
+
+    def self.all_platforms
+      default_platforms + [
+        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 7},
+        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 6},
+      ]
+    end
+
     def self. run!(options)
       new(options).run!
     end
