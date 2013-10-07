@@ -125,13 +125,13 @@ module EmberSecureBuilder
 
     def cross_browser_test_defaults
       tags = [project_prefix]
+      name = project_name
 
       if pull_request_number
-        name = "Pull Request ##{pull_request_number}"
+        name += " PR ##{pull_request_number}"
         tags << "PR ##{pull_request_number}"
       else
-        name = "#{project_name}"
-        tags << "PR ##{pull_request_number}"
+        tags << "#{suspect_branch}"
       end
 
       {
