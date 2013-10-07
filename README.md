@@ -19,9 +19,13 @@ sidekiq --require ./lib/ember_secure_builder.rb --concurrency 2
 3. Post the repository and pull request number you are attempting to test.
 
 ```ruby
+require 'octokit'
 require 'rest-client'
 
-RestClient.post 'http://localhost:9292/build', repo: 'emberjs/ember.js', perform_cross_browser_tests: true, pull_request_number: 3538
+pull_requests = Octokit.pull_requests 'emberjs/ember.js'
+pull_requests.each do |pr|
+  RestClient.post 'http://localhost:9292/build', repo: 'emberjs/ember.js', perform_cross_browser_tests: true, pull_request_number: pr.number
+end
 ```
 
 4. Watch the SauceLabs site for build pass/fail status: https://saucelabs.com/u/rwjblue
