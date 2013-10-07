@@ -1,6 +1,8 @@
 require 'tmpdir'
 require 'fileutils'
 
+require 'aws-sdk'
+
 module EmberSecureBuilder
   class AssetBuilder
     attr_accessor :suspect_repo, :suspect_branch,
@@ -13,13 +15,11 @@ module EmberSecureBuilder
       builder = new
       builder.load_from_pull_request(repository, pull_request_number)
       builder.build
-      builder.publish
-    end
-
-    def self.publish(options = nil)
-      builder = new(options)
-      builder.build
       builder.upload
+
+      if perform_cross_browser_tests
+        builder.queue_cross_browser_tests
+      end
     end
 
     def initialize(options = nil)
@@ -29,8 +29,8 @@ module EmberSecureBuilder
       self.suspect_repo   = options.fetch(:suspect_repo, nil)
       self.suspect_branch = options.fetch(:suspect_branch, nil)
 
-      self.good_repo   = options.fetch(:good_repo) {  'https://github.com/emberjs/ember.js.git' }
-      self.good_branch = options.fetch(:good_branch) {  'master' }
+      self.good_repo   = options.fetch(:good_repo) {  'https://github.com/rjackson/ember.js.git' }
+      self.good_branch = options.fetch(:good_branch) {  'static_test_generator' }
 
       self.debug       = options.fetch(:debug) { true }
       self.work_dir    = options.fetch(:work_dir) { build_work_dir }
