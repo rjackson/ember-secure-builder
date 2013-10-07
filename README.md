@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.org/rjackson/ember-secure-builder.png?branch=master)](https://travis-ci.org/rjackson/ember-secure-builder)
 
-Purpose
-=======
+##Purpose
 
 To run supporting tasks for Ember development that cannot be done from within
 TravisCI. The tasks are mostly related to publishing builds and cross-browser
@@ -24,8 +23,7 @@ The main functions provided now are:
   our test suite against all supported browsers. We are using [Sauce Labs](http://saucelabs.com)
   to run the full test suite on each supported browser.
 
-Browsers Tested
-===============
+##Browsers Tested
 
 You can check the current default platforms in `lib/ember_secure_builder/sauce_labs_webdriver_job.rb`,
 but the following is the current listing (as of 2013/10/07):
@@ -43,18 +41,25 @@ but the following is the current listing (as of 2013/10/07):
 ]
 ```
 
-Usage
-=====
+##Usage
 
-Run the `RackApp`:
+###With Foreman
 
 ```sh
-rackup config.ru
+foreman start
 ```
 
-Run the `Sidekiq` worker process:
+###Manually
+
 
 ```sh
+# Start redis
+redis-server
+
+# Run the `RackApp`:
+rackup config.ru
+
+# Run the `Sidekiq` worker process:
 # set concurrency to your maximum number of SauceLabs concurrent workers
 sidekiq --require ./lib/ember_secure_builder.rb --concurrency 2
 ```
@@ -73,8 +78,7 @@ end
 
 Watch the SauceLabs site for build pass/fail status: https://saucelabs.com/u/rwjblue
 
-Webhook Details
-===============
+##Webhook Details
 
 The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endpoints:
 
@@ -83,8 +87,8 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
   * `pull_request_number` (**required**) - The pull request number to build.
   * `perform_cross_browser_tests` (**optional**) - Should we perform cross-browser tests after the build is published? ('true' == yes, anything else == no).
 
-Tasks TODO
-==========
+##Tasks TODO
+
 * **DONE** Make work properly for Ember Data.
 * Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
 * Create comment in Github to indicate pass/fail status when all workers are done (or incrementally?).
