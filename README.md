@@ -73,10 +73,19 @@ end
 
 Watch the SauceLabs site for build pass/fail status: https://saucelabs.com/u/rwjblue
 
+Webhook Details
+===============
+
+The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endpoints:
+
+* POST `/build`
+  * `repo` (**required**) - The parent projects repo in Organization/Project format (i.e. 'emberjs/ember.js' or 'emberjs/data').
+  * `pull_request_number` (**required**) - The pull request number to build.
+  * `perform_cross_browser_tests` (**optional**) - Should we perform cross-browser tests after the build is published? ('true' == yes, anything else == no).
+
 Tasks TODO
 ==========
-* **DONE** Implement Hooks for Asset Build (to be used by Travis not Github).
-* **DONE** Queue Sauce Labs jobs after asset build is completed.
+* Make work properly for Ember Data.
 * Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
 * Create comment in Github to indicate pass/fail status when all workers are done (or incrementally?).
 * Create UI for reviewing historical Sauce Labs runs for a specific build.
