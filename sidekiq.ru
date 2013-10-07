@@ -6,4 +6,4 @@ Sidekiq.configure_client do |config|
 end
 
 require 'sidekiq/web'
-run Rack::URLMap.new('/' => EmberSecureBuilder::RackApp, '/sidekiq' => Sidekiq::Web)
+run Sidekiq::Web
