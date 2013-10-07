@@ -9,20 +9,20 @@ testing at this point, but could extend to just about anything that we need.
 
 The main functions provided now are:
 
-1. To build and publish builds from pull requests.
+* To build and publish builds from pull requests.
 
-This must be done carefully to prevent exposing our secret keys to the pull
-request author (and is why Travis disables secure environment variables for
-PR's). The route that we have chosen is to use a known good version of a the
-base repository ('emberjs/ember.js' or 'emberjs/data') and import the `packages`
-from the pull request repo/branch. This prevents any of the pull request's code
-from being executed.
+  This must be done carefully to prevent exposing our secret keys to the pull
+  request author (and is why Travis disables secure environment variables for
+  PR's). The route that we have chosen is to use a known good version of a the
+  base repository ('emberjs/ember.js' or 'emberjs/data') and import the `packages`
+  from the pull request repo/branch. This prevents any of the pull request's code
+  from being executed.
 
-2. To run cross-browser tests.
+* To run cross-browser tests.
 
-To ensure that we do not introduce regressions for specific browsers we need to run
-our test suite against all supported browsers. We are using [Sauce Labs](http://saucelabs.com)
-to run the full test suite on each supported browser.
+  To ensure that we do not introduce regressions for specific browsers we need to run
+  our test suite against all supported browsers. We are using [Sauce Labs](http://saucelabs.com)
+  to run the full test suite on each supported browser.
 
 Browsers Tested
 ===============
