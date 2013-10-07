@@ -103,6 +103,21 @@ module EmberSecureBuilder
       it "can load the suspect branch" do
         assert_equal builder.suspect_branch, 'update_ember-dev'
       end
+
+      it "sets the pull_request_number" do
+        assert_equal builder.pull_request_number, pr_number
+      end
+    end
+
+    describe '#last_suspect_repo_commit' do
+      let(:suspect_branch)   { 'master' }
+      let(:suspect_repo_url) { "https://github.com/emberjs/ember.js" }
+
+      it "returns the latest SHA for the given branch" do
+        VCR.use_cassette 'last_suspect_repo_commit' do
+          assert_equal '5f58c297941a5e649a41383aa75c330ef0f1f7b7', builder.last_suspect_repo_commit
+        end
+      end
     end
 
     describe 'clone_repos' do
@@ -155,7 +170,7 @@ module EmberSecureBuilder
 
         command = builder.system_commands_called.first
 
-        assert_equal command[:command], 'bundle install && bundle exec rake dist'
+        assert_equal command[:command], 'bundle install && bundle exec rake dist ember:generate_static_test_site'
         assert_equal command[:cwd], builder.work_dir.join('good').realpath.to_s
       end
     end
@@ -164,7 +179,7 @@ module EmberSecureBuilder
       let(:fake_bucket) { TestSupport::MockS3Bucket.new }
 
       before do
-        def builder.build_s3_bucket(opts)
+        def builder.build_s3_bucket
           @build_s3_bucket_called = true
           TestSupport::MockS3Bucket.new
         end
@@ -186,19 +201,25 @@ module EmberSecureBuilder
         refute builder.build_s3_bucket_called
       end
 
-      it "uploads a file" do
+      it "uploads files" do
         builder.upload(:bucket => fake_bucket)
 
-        assert_equal 1, fake_bucket.objects.length
+        assert_equal 4, fake_bucket.objects.length
       end
 
       it "sets the correct source and destination paths" do
         builder.upload(:bucket => fake_bucket)
 
-        s3_object = fake_bucket.objects.values.first
+        files = %w{ember.js ember-spade.js ember-tests.js tests.html}
 
-        assert_equal builder.asset_source_path, s3_object.source_path
-        assert_equal 'somepath', s3_object.path
+        files.each do |file|
+          expected_dest = builder.asset_destination_path + "/#{file}"
+          expected_src  = builder.asset_source_path.join(file)
+
+          s3_object = fake_bucket.objects[expected_dest]
+
+          assert_equal expected_src, s3_object.source_path
+        end
       end
 
       it "sets the correct object options" do
@@ -219,7 +240,17 @@ module EmberSecureBuilder
       end
 
       it "should return dist/ember.js in the good repo path by default" do
-        assert_equal builder.work_dir.join('good/dist/ember.js'), builder.asset_source_path
+        assert_equal builder.work_dir.join('good/dist'), builder.asset_source_path
+      end
+    end
+
+    describe "#queue_cross_browser_tests" do
+      before do
+        SauceLabsWorker.jobs.clear
+      end
+
+      it "queues tests for the default platforms" do
+
       end
     end
   end

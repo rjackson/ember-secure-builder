@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/emberjs/ember.js/branches/master
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.beta+json
+      User-Agent:
+      - Octokit Ruby Gem 2.3.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Mon, 07 Oct 2013 02:32:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Status:
+      - 200 OK
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '51'
+      X-Ratelimit-Reset:
+      - '1381114299'
+      Cache-Control:
+      - public, max-age=60, s-maxage=60
+      Etag:
+      - '"2456f0ed23beb4cef7d9d4d2aba6f378"'
+      Vary:
+      - Accept
+      - Accept-Encoding
+      X-Github-Media-Type:
+      - github.beta; format=json
+      X-Content-Type-Options:
+      - nosniff
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Expose-Headers:
+      - ETag, Link, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes
+      Access-Control-Allow-Origin:
+      - '*'
+      X-Github-Request-Id:
+      - B801F024:1FA3:5DECA53:52521D54
+    body:
+      encoding: UTF-8
+      string: '{"name":"master","commit":{"sha":"5f58c297941a5e649a41383aa75c330ef0f1f7b7","commit":{"author":{"name":"Stefan
+        Penner","email":"stefan.penner@gmail.com","date":"2013-10-07T01:58:48Z"},"committer":{"name":"Stefan
+        Penner","email":"stefan.penner@gmail.com","date":"2013-10-07T01:58:48Z"},"message":"Merge
+        pull request #3542 from rjackson/use_ascii_in_license\n\nUse plain ASCII for
+        License.","tree":{"sha":"dd3898a2f1b10d9af37c38fcf5dd1a8dfd7482bc","url":"https://api.github.com/repos/emberjs/ember.js/git/trees/dd3898a2f1b10d9af37c38fcf5dd1a8dfd7482bc"},"url":"https://api.github.com/repos/emberjs/ember.js/git/commits/5f58c297941a5e649a41383aa75c330ef0f1f7b7","comment_count":0},"url":"https://api.github.com/repos/emberjs/ember.js/commits/5f58c297941a5e649a41383aa75c330ef0f1f7b7","html_url":"https://github.com/emberjs/ember.js/commit/5f58c297941a5e649a41383aa75c330ef0f1f7b7","comments_url":"https://api.github.com/repos/emberjs/ember.js/commits/5f58c297941a5e649a41383aa75c330ef0f1f7b7/comments","author":{"login":"stefanpenner","id":1377,"avatar_url":"https://0.gravatar.com/avatar/8ccebbc3d28f903d5c214efd3447ac71?d=https%3A%2F%2Fidenticons.github.com%2Ff52378e14237225a6f6c7d802dc6abbd.png","gravatar_id":"8ccebbc3d28f903d5c214efd3447ac71","url":"https://api.github.com/users/stefanpenner","html_url":"https://github.com/stefanpenner","followers_url":"https://api.github.com/users/stefanpenner/followers","following_url":"https://api.github.com/users/stefanpenner/following{/other_user}","gists_url":"https://api.github.com/users/stefanpenner/gists{/gist_id}","starred_url":"https://api.github.com/users/stefanpenner/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/stefanpenner/subscriptions","organizations_url":"https://api.github.com/users/stefanpenner/orgs","repos_url":"https://api.github.com/users/stefanpenner/repos","events_url":"https://api.github.com/users/stefanpenner/events{/privacy}","received_events_url":"https://api.github.com/users/stefanpenner/received_events","type":"User"},"committer":{"login":"stefanpenner","id":1377,"avatar_url":"https://0.gravatar.com/avatar/8ccebbc3d28f903d5c214efd3447ac71?d=https%3A%2F%2Fidenticons.github.com%2Ff52378e14237225a6f6c7d802dc6abbd.png","gravatar_id":"8ccebbc3d28f903d5c214efd3447ac71","url":"https://api.github.com/users/stefanpenner","html_url":"https://github.com/stefanpenner","followers_url":"https://api.github.com/users/stefanpenner/followers","following_url":"https://api.github.com/users/stefanpenner/following{/other_user}","gists_url":"https://api.github.com/users/stefanpenner/gists{/gist_id}","starred_url":"https://api.github.com/users/stefanpenner/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/stefanpenner/subscriptions","organizations_url":"https://api.github.com/users/stefanpenner/orgs","repos_url":"https://api.github.com/users/stefanpenner/repos","events_url":"https://api.github.com/users/stefanpenner/events{/privacy}","received_events_url":"https://api.github.com/users/stefanpenner/received_events","type":"User"},"parents":[{"sha":"ada1be98d9618421901a52f059bdc91dbce5c5e6","url":"https://api.github.com/repos/emberjs/ember.js/commits/ada1be98d9618421901a52f059bdc91dbce5c5e6","html_url":"https://github.com/emberjs/ember.js/commit/ada1be98d9618421901a52f059bdc91dbce5c5e6"},{"sha":"94f4c176ee76b6615a1efd1df4d9ecb308eac142","url":"https://api.github.com/repos/emberjs/ember.js/commits/94f4c176ee76b6615a1efd1df4d9ecb308eac142","html_url":"https://github.com/emberjs/ember.js/commit/94f4c176ee76b6615a1efd1df4d9ecb308eac142"}]},"_links":{"self":"https://api.github.com/repos/emberjs/ember.js/branches/master","html":"https://github.com/emberjs/ember.js/tree/master"}}'
+    http_version: 
+  recorded_at: Mon, 07 Oct 2013 02:32:52 GMT
+recorded_with: VCR 2.4.0

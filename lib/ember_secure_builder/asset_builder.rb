@@ -5,9 +5,9 @@ module EmberSecureBuilder
   class AssetBuilder
     attr_accessor :suspect_repo, :suspect_branch,
                   :good_repo,    :good_branch,
-                  :work_dir,     :debug,
-                  :asset_source_path,
-                  :asset_destination_path
+                  :work_dir,     :debug, :env,
+                  :asset_source_path, :asset_destination_path,
+                  :pull_request_number, :last_suspect_repo_commit
 
     def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
       builder = new
@@ -25,6 +25,7 @@ module EmberSecureBuilder
     def initialize(options = nil)
       options ||= {}
 
+      self.env            = options.fetch(:env) { ENV }
       self.suspect_repo   = options.fetch(:suspect_repo, nil)
       self.suspect_branch = options.fetch(:suspect_branch, nil)
 
@@ -44,8 +45,21 @@ module EmberSecureBuilder
       require 'octokit'
       pr = Octokit.pull_request repo, pull_request_number
 
-      self.suspect_repo = prefix + pr.head.repo.full_name
-      self.suspect_branch = pr.head.ref
+      self.suspect_repo             = prefix + pr.head.repo.full_name
+      self.suspect_branch           = pr.head.ref
+      self.pull_request_number      = pull_request_number
+      self.last_suspect_repo_commit = pr.head.sha
+    end
+
+    def last_suspect_repo_commit
+      @last_suspect_repo_commit ||= begin
+                                      prefix = 'https://github.com/'
+
+                                      require 'octokit'
+                                      branch = Octokit.branch suspect_repo.sub(prefix, ''), suspect_branch
+
+                                      branch.commit.sha
+                                    end
     end
 
     def cleanup
@@ -68,13 +82,13 @@ module EmberSecureBuilder
 
       Dir.chdir good_repo_local_path do
         Bundler.with_clean_env do
-          system('bundle install && bundle exec rake dist')
+          system('bundle install && bundle exec rake dist ember:generate_static_test_site')
         end
       end
     end
 
     def asset_source_path
-      @asset_source_path ||= good_repo_local_path.join('dist/ember.js')
+      @asset_source_path ||= good_repo_local_path.join('dist')
     end
 
     def asset_destination_path
@@ -82,13 +96,38 @@ module EmberSecureBuilder
     end
 
     def upload(options = {})
-      bucket = options.fetch(:bucket) { build_s3_bucket(options) }
+      bucket = options.fetch(:bucket) { build_s3_bucket }
 
-      obj = bucket.objects[asset_destination_path]
-      obj.write(asset_source_path, {:content_type => 'text/javascript'})
+      files = %w{ember.js ember-spade.js ember-tests.js tests.html}
+
+      files.each do |file|
+        type = file.end_with?('.js') ? 'text/javascript' : 'text/html'
+
+        obj = bucket.objects[asset_destination_path + "/#{file}"]
+        obj.write(asset_source_path.join(file), {:content_type => type})
+      end
+    end
+
+    def queue_cross_browser_tests(options = nil)
+      options    ||= {}
+      platforms    = options.fetch(:platforms) { SauceLabsWebdriverJob.default_platforms }
+      worker_class = options.fetch(:worker_class) { SauceLabsWorker }
+      test_url     = options.fetch(:test_url) { build_test_url }
+      build        = options.fetch(:build) { last_suspect_repo_commit }
+      name         = options.fetch(:name) { "PR #{pull_request_number}" }
+
+      platforms.each do |platform|
+        worker_class.perform_async(platform.merge(:url   => test_url,
+                                                  :name  => name,
+                                                  :build => build))
+      end
     end
 
     private
+
+    def build_test_url
+      "https://s3.amazonaws.com/#{bucket_name}/#{asset_destination_path}/tests.html"
+    end
 
     def clone_suspect_repo
       clone_repo suspect_repo, suspect_branch, suspect_repo_local_path
@@ -122,12 +161,13 @@ module EmberSecureBuilder
       Pathname.new(dir)
     end
 
-    def build_s3_bucket(options)
-      secrets     = options.fetch(:secure_vars) { Dotenv::Environment.new('.env') }
-      bucket_name = options.fetch(:bucket_name) { secrets['S3_BUCKET_NAME'] }
+    def bucket_name
+      @bucket_name ||= env['S3_BUCKET_NAME']
+    end
 
-      s3 = AWS::S3.new(:access_key_id => secrets['S3_ACCESS_KEY_ID'],
-                       :secret_access_key => secrets['S3_SECRET_ACCESS_KEY'])
+    def build_s3_bucket
+      s3 = AWS::S3.new(:access_key_id => env['S3_ACCESS_KEY_ID'],
+                       :secret_access_key => env['S3_SECRET_ACCESS_KEY'])
 
       s3.buckets[bucket_name]
     end
