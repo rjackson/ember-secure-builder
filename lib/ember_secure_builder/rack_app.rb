@@ -7,7 +7,7 @@ module EmberSecureBuilder
     post '/build' do
       repo                        = params['repo']
       pull_request_number         = params['pull_request_number']
-      perform_cross_browser_tests = params['perform_cross_browser_tests']
+      perform_cross_browser_tests = params['perform_cross_browser_tests'] == 'true'
 
       halt 400 unless repo && pull_request_number
 
