@@ -169,9 +169,9 @@ module EmberSecureBuilder
         builder.build
 
         command = builder.system_commands_called.first
+        expected_command = "cd #{builder.work_dir.join('good')} && bundle install && bundle exec rake dist ember:generate_static_test_site"
 
-        assert_equal command[:command], 'bundle install && bundle exec rake dist ember:generate_static_test_site'
-        assert_equal command[:cwd], builder.work_dir.join('good').realpath.to_s
+        assert_equal expected_command, command[:command]
       end
     end
 
