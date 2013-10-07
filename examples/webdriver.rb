@@ -5,7 +5,7 @@ Dotenv.load
 require_relative '../lib/ember_secure_builder'
 
 BUILD = '2985b2892d0a2c0b75bba7b5e1b5389251b7f1b4'
-URL = "https://s3.amazonaws.com/rwjblue-ember-dev-test/canary/shas/#{BUILD}/tests.html"
+URL = "https://s3.amazonaws.com/rwjblue-ember-dev-test/canary/shas/#{BUILD}/ember-tests.html"
 
 def run_all
   SauceLabsWebdriverJob.default_platforms.each do |hash|

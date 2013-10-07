@@ -164,7 +164,7 @@ module EmberSecureBuilder
     end
 
     def build_test_url
-      "https://s3.amazonaws.com/#{bucket_name}/#{asset_destination_path}/tests.html"
+      "https://s3.amazonaws.com/#{bucket_name}/#{asset_destination_path}/#{project_prefix}-tests.html"
     end
 
     def clone_suspect_repo
