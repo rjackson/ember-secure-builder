@@ -92,7 +92,7 @@ module EmberSecureBuilder
     end
 
     def asset_destination_path
-      @asset_destination_path ||= 'somepath'
+      @asset_destination_path ||= "pull-request/#{pull_request_number}"
     end
 
     def upload(options = {})
