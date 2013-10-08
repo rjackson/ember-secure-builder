@@ -43,6 +43,12 @@ but the following is the current listing (as of 2013/10/07):
 
 ##Usage
 
+```sh
+cp .env.sample .env
+```
+
+Edit `.env` to set your S3 and SauceLabs credentials.
+
 ###With Foreman
 
 ```sh
