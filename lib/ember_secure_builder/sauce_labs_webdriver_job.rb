@@ -18,6 +18,7 @@ module EmberSecureBuilder
         {:browser => :iphone,            :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
         {:browser => :ipad,              :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
         {:browser => :firefox,           :platform => 'Windows 7',  :version => 24},
+        {:browser => :opera,             :platform => 'Windows 7',  :version => 12},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
