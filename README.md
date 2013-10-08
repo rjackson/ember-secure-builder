@@ -118,7 +118,7 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
 * **DONE** Make work properly for Ember Data.
 * **DONE** Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
 * **DONE** Create Webhook for triggering the Sauce Labs jobs directly (without going through AssetBuilder first).
-* Create comment in Github to indicate pass/fail status when all workers are done (or incrementally?).
+* Use Github commit status API to indicate pass/fail build status.
 * Create UI for reviewing historical Sauce Labs runs for a specific build.
   * Save run details to JSON file in S3 in sub-folder of assets directory.
   * Create a simple Ember app to display the status of a given commit/PR.
