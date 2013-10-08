@@ -4,6 +4,29 @@ require 'sinatra'
 
 module EmberSecureBuilder
   class RackApp < Sinatra::Base
+    helpers do
+      def protected!
+        return if authorized?
+        headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+        halt 401, "Not authorized\n"
+      end
+
+      def authorized?
+        auth ||=  Rack::Auth::Basic::Request.new(request.env)
+        return false unless [:provided?, :basic?, :credentials].all? {|s| auth.send(s)}
+
+        auth.credentials == [username, password]
+      end
+
+      def username
+        ENV['WEBHOOK_USERNAME'] || 'admin'
+      end
+
+      def password
+        ENV['WEBHOOK_PASSWORD'] || "uh, oh!"
+      end
+    end
+
     before do
       halt 403 unless %w{emberjs/ember.js emberjs/data}.include? params['repo']
     end
@@ -20,6 +43,8 @@ module EmberSecureBuilder
     end
 
     post '/queue-browser-tests' do
+      protected!
+
       repo         = params['repo']
       name         = params['project_name']
       tags         = params['tags']

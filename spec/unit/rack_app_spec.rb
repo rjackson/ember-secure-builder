@@ -6,7 +6,6 @@ module EmberSecureBuilder
   describe RackApp do
     include Rack::Test::Methods
 
-
     def app
       RackApp
     end
@@ -80,7 +79,30 @@ module EmberSecureBuilder
          'results_path' => 'foo/bar/baz'}
       end
 
+      describe "authentication" do
+        it "requires authentication" do
+          post '/queue-browser-tests', valid_params
+
+          assert_equal 401, last_response.status
+        end
+
+        it "requires valid authentication" do
+          authorize 'wrong', 'password'
+          post '/queue-browser-tests', valid_params
+
+          assert_equal 401, last_response.status
+        end
+
+        it "works when using the correct values" do
+          authorize 'admin', 'uh, oh!'
+          post '/queue-browser-tests', valid_params
+
+          assert last_response.ok?
+        end
+      end
+
       it "should not add job to queue when no payload was received" do
+        authorize 'admin', 'uh, oh!'
         post '/queue-browser-tests'
 
         refute last_response.ok?
@@ -91,6 +113,7 @@ module EmberSecureBuilder
 
       describe "with a valid payload" do
         before do
+          authorize 'admin', 'uh, oh!'
           post '/queue-browser-tests', valid_params
 
           assert last_response.ok?
