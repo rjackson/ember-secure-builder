@@ -105,14 +105,8 @@ module EmberSecureBuilder
       end
     end
 
-    def queue_cross_browser_tests(options = nil)
-      options    ||= {}
-      platforms    = options.fetch(:platforms) { SauceLabsWebdriverJob.default_platforms }
-      worker_class = options.fetch(:worker_class) { SauceLabsWorker }
-
-      platforms.each do |platform|
-        worker_class.perform_async(platform.merge(cross_browser_test_defaults))
-      end
+    def queue_cross_browser_tests(worker_class = SauceLabsWorker)
+      worker_class.queue_cross_browser_tests(test_options: cross_browser_test_defaults)
     end
 
     def good_repo

@@ -85,13 +85,21 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
 * POST `/build`
   * `repo` (**required**) - The parent projects repo in Organization/Project format (i.e. 'emberjs/ember.js' or 'emberjs/data').
   * `pull_request_number` (**required**) - The pull request number to build.
-  * `perform_cross_browser_tests` (**optional**) - Should we perform cross-browser tests after the build is published? ('true' == yes, anything else == no).
+  * `perform_cross_browser_tests` - Should we perform cross-browser tests after the build is published? ('true' == yes, anything else == no).
+
+* POST `/queue-browser-tests`
+  * `commit_sha` (**required**) - This will be used as the build ID.
+  * `test_url` (**required**) - The url to run the tests against.
+  * `repo` (**required**) - The parent projects repo in Organization/Project format (i.e. 'emberjs/ember.js' or 'emberjs/data').
+  * `project_name` - This will be used for the Sauce Labs session name.
+  * `tags` - This will be used as tags with Sauce Labs (to make filtering easier).
+  * `results_path` - The relative path within the S3 bucket to place the results.
 
 ##Tasks TODO
 
 * **DONE** Make work properly for Ember Data.
 * **DONE** Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
-* Create Webhook for triggering the Sauce Labs jobs directly (without going through AssetBuilder first).
+* **DONE** Create Webhook for triggering the Sauce Labs jobs directly (without going through AssetBuilder first).
 * Create comment in Github to indicate pass/fail status when all workers are done (or incrementally?).
 * Create UI for reviewing historical Sauce Labs runs for a specific build.
   * Save run details to JSON file in S3 in sub-folder of assets directory.
