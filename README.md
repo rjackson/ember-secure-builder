@@ -90,7 +90,7 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
 ##Tasks TODO
 
 * **DONE** Make work properly for Ember Data.
-* Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
+* **DONE** Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
 * Create comment in Github to indicate pass/fail status when all workers are done (or incrementally?).
 * Create UI for reviewing historical Sauce Labs runs for a specific build.
   * Save run details to JSON file in S3 in sub-folder of assets directory.

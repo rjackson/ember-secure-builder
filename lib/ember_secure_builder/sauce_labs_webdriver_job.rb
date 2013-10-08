@@ -8,7 +8,8 @@ module EmberSecureBuilder
     attr_accessor :username, :access_key,
       :browser, :platform, :version,
       :name, :url, :build, :tags, :env,
-      :driver_class, :capabilities_class
+      :driver_class, :capabilities_class,
+      :results_path
 
     def self.default_platforms
       [
@@ -44,6 +45,7 @@ module EmberSecureBuilder
       self.browser    = options[:browser]
       self.platform   = options[:platform]
       self.version    = options.fetch(:version, '')
+      self.results_path = options.fetch(:results_path, nil)
 
       self.tags       = options.fetch(:tags, [])
       self.build      = options.fetch(:build, '')
@@ -153,7 +155,12 @@ module EmberSecureBuilder
     end
 
     def save_result
-      body = {passed: passed?, custom_data: result, build: build}
+      save_result_to_sauce_labs
+      upload_to_s3
+    end
+
+    def save_result_to_sauce_labs
+      body = {passed: passed?}
 
       RestClient.put sauce_labs_job_url, body.to_json, :content_type => :json, :accept => :json
     end
@@ -169,6 +176,24 @@ module EmberSecureBuilder
       payload  = JSON.parse(response.body)
 
       payload['status'] == 'complete'
+    end
+
+    def upload_to_s3(options = {})
+      return unless results_path
+
+      bucket = options.fetch(:bucket) { build_s3_bucket }
+
+      destination_path = results_path + "/#{platform}-#{browser}-#{version}.json"
+
+      obj = bucket.objects[destination_path.gsub(' ', '_').downcase]
+      obj.write(build_s3_results, {:content_type => 'application/json'})
+    end
+
+    def build_s3_results
+      {browser: browser, test_url: url,
+       platform: platform, version: version,
+       result: result, passed: passed?,
+       build: build, tags: tags}.to_json
     end
 
     private
@@ -187,6 +212,13 @@ module EmberSecureBuilder
       client = Selenium::WebDriver::Remote::Http::Default.new
       client.timeout = 180
       client
+    end
+
+    def build_s3_bucket
+      s3 = AWS::S3.new(:access_key_id => env['S3_ACCESS_KEY_ID'],
+                       :secret_access_key => env['S3_SECRET_ACCESS_KEY'])
+
+      s3.buckets[env['S3_BUCKET_NAME']]
     end
   end
 end

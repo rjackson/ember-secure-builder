@@ -20,7 +20,8 @@ module EmberSecureBuilder
                                 build: build,
                                 tags: tags,
                                 capabilities_class: mock_capabilities_class,
-                                driver_class: mock_driver_class)
+                                driver_class: mock_driver_class,
+                                results_path: results_path)
     end
 
     let(:username)    { SecureRandom.urlsafe_base64 }
@@ -33,6 +34,7 @@ module EmberSecureBuilder
     let(:version)  { "10" }
     let(:build)    { SecureRandom.urlsafe_base64 }
     let(:tags)     { [] }
+    let(:results_path) { nil }
 
     describe "#initialize" do
       it "converts the hash's keys to sym before accessing." do
@@ -150,6 +152,69 @@ module EmberSecureBuilder
                                  :print_message_to_console]
 
         assert_equal expected_method_calls, sauce.method_calls
+      end
+    end
+
+    describe "#upload_to_s3" do
+      let(:fake_bucket)  { TestSupport::MockS3Bucket.new }
+      let(:results_path) { 'fred/flinstone' }
+
+      before do
+        def sauce.build_s3_bucket
+          @build_s3_bucket_called = true
+          TestSupport::MockS3Bucket.new
+        end
+
+        def sauce.build_s3_bucket_called
+          @build_s3_bucket_called
+        end
+
+        def sauce.build_s3_results; 'random results'; end
+      end
+
+      describe "when no results_path is specified" do
+        let(:results_path) { nil }
+
+        it "doesn't add any files to the bucket" do
+          sauce.upload_to_s3(:bucket => fake_bucket)
+
+          assert_equal 0, fake_bucket.objects.length
+        end
+
+        it "doesn't call build_s3_bucket" do
+          sauce.upload_to_s3
+
+          refute sauce.build_s3_bucket_called
+        end
+      end
+
+      it "calls build_s3_bucket if no bucket is provided" do
+        sauce.upload_to_s3
+
+        assert sauce.build_s3_bucket_called
+      end
+
+      it "uses the bucket if provided" do
+        sauce.upload_to_s3(:bucket => fake_bucket)
+
+        refute sauce.build_s3_bucket_called
+      end
+
+      it "uploads files" do
+        sauce.upload_to_s3(:bucket => fake_bucket)
+
+        assert_equal 1, fake_bucket.objects.length
+      end
+
+      it "saves data from build_s3_results" do
+        sauce.upload_to_s3(:bucket => fake_bucket)
+
+        expected_dest = results_path + "/#{platform}-#{browser}-#{version}.json"
+        expected_dest = expected_dest.downcase.gsub(' ', '_')
+
+        s3_object = fake_bucket.objects[expected_dest]
+
+        assert_equal 'random results', s3_object.source_path
       end
     end
   end

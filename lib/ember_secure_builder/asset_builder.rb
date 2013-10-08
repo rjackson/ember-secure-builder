@@ -91,7 +91,7 @@ module EmberSecureBuilder
     end
 
     def asset_destination_path
-      @asset_destination_path ||= "pull-request/#{pull_request_number}"
+      @asset_destination_path ||= "#{project_prefix}/pull-request/#{pull_request_number}"
     end
 
     def upload(options = {})
@@ -138,7 +138,8 @@ module EmberSecureBuilder
         :url   => test_url,
         :name  => name,
         :build => last_suspect_repo_commit,
-        :tags  => tags
+        :tags  => tags,
+        :results_path => asset_destination_path
       }
     end
 
