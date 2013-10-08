@@ -157,13 +157,29 @@ module EmberSecureBuilder
 
     describe 'build' do
       before do
-        builder.clone_repos
+        def builder.clone_repos; @clone_repos_called = true; end
+        def builder.copy_suspect_packages; @copy_suspect_packages_called = true; end
+
+        def builder.clone_repos_called; @clone_repos_called; end
+        def builder.copy_suspect_packages_called; @copy_suspect_packages_called; end
 
         def builder.system(command)
           @commands ||= []
           @commands << {command: command, env: ENV, cwd: Dir.getwd}
         end
         def builder.system_commands_called; @commands; end
+      end
+
+      it "calls clone_repo" do
+        builder.build
+
+        assert builder.clone_repos_called
+      end
+
+      it "calls copy_suspect_packages" do
+        builder.build
+
+        assert builder.copy_suspect_packages
       end
 
       it "calls rake dist from the good repo dir" do

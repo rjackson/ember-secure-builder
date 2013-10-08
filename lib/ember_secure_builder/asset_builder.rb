@@ -80,6 +80,7 @@ module EmberSecureBuilder
 
     def build
       clone_repos
+      copy_suspect_packages
 
       Bundler.with_clean_env do
         system("cd #{good_repo_local_path} && bundle install && bundle exec rake dist ember:generate_static_test_site")
