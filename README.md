@@ -106,6 +106,7 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
   * `perform_cross_browser_tests` - Should we perform cross-browser tests after the build is published? ('true' == yes, anything else == no).
 
 * POST `/queue-browser-tests`
+  * This hook requires basic authentication, and will use WEBHOOK_USERNAME and WEBHOOK_PASSWORD from ENV.
   * `commit_sha` (**required**) - This will be used as the build ID.
   * `test_url` (**required**) - The url to run the tests against.
   * `repo` (**required**) - The parent projects repo in Organization/Project format (i.e. 'emberjs/ember.js' or 'emberjs/data').
