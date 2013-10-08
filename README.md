@@ -38,6 +38,8 @@ but the following is the current listing (as of 2013/10/07):
   {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
   {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
   {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
+  {:browser => :internet_explorer, :platform => 'Windows XP', :version => 7},
+  {:browser => :internet_explorer, :platform => 'Windows XP', :version => 6},
 ]
 ```
 

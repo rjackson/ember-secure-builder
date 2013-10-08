@@ -21,13 +21,13 @@ module EmberSecureBuilder
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
+        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 7},
+        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 6},
       ]
     end
 
     def self.all_platforms
       default_platforms + [
-        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 7},
-        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 6},
         {:browser => :android,           :platform => 'Linux',      :version => '4.0', 'device-orientation' => 'landscape'},
       ]
     end
