@@ -43,11 +43,20 @@ but the following is the current listing (as of 2013/10/07):
 
 ##Usage
 
+###Initial Setup
+
+There are a few things to take care of before starting up the required processes.
+
+* Edit `.env` to set your S3 and SauceLabs credentials. You can start with the
+  sample file and just update the credentials.
+
 ```sh
 cp .env.sample .env
 ```
 
-Edit `.env` to set your S3 and SauceLabs credentials.
+* Ensure that your S3 bucket policy grants public read permissions to the `ember/*`
+  and `ember-data/*` paths. You can start with the bucket policy `sample_s3_bucket_policy.txt`,
+  and modify to change the bucket name (listed in the sample as `YOUR_BUCKET_NAME_HERE`).
 
 ###With Foreman
 

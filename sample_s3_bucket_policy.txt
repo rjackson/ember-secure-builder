@@ -1,0 +1,31 @@
+{
+  "Id": "Policy1381261929433",
+  "Statement": [
+    {
+      "Sid": "Stmt1381261906298",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::YOUR_BUCKET_NAME_HERE/ember-data/*",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      }
+    },
+    {
+      "Sid": "Stmt1381261927965",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::YOUR_BUCKET_NAME_HERE/ember/*",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      }
+    }
+  ]
+}
