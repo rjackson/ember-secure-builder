@@ -212,6 +212,8 @@ module EmberSecureBuilder
       dir.mkpath unless dir.directory?
 
       at_exit{ cleanup }
+
+      dir
     end
 
     def bucket_name
