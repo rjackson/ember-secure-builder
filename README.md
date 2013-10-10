@@ -126,7 +126,6 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
   * Needs to show browsers along with failure status and any errors.
 
 Pre-Deploy Steps
-* Decide on a better project name.
 * Move project under `emberjs` on Github.
 * Create S3 bucket for PR builds (`pr-builds.emberjs.com`?)
 * Create DNS entries
