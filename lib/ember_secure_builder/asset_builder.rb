@@ -207,11 +207,11 @@ module EmberSecureBuilder
     end
 
     def build_work_dir
-      dir = Dir.mktmpdir
+      dir = Pathname.new(Dir.mktmpdir)
+
+      dir.mkpath unless dir.directory?
 
       at_exit{ cleanup }
-
-      Pathname.new(dir)
     end
 
     def bucket_name
