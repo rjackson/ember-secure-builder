@@ -153,6 +153,12 @@ module EmberSecureBuilder
 
         refute File.directory?("#{builder.work_dir}/good/this_should_NOT_be_copied")
       end
+
+      it "raises an error if clone_repos returns false" do
+        def builder.clone_repos; false; end
+
+        assert_raises(AssetBuilder::CloneRepoError) { builder.copy_suspect_packages }
+      end
     end
 
     describe 'build' do

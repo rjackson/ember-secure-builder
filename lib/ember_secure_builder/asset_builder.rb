@@ -5,6 +5,8 @@ require 'aws-sdk'
 
 module EmberSecureBuilder
   class AssetBuilder
+    class CloneRepoError < StandardError; end
+
     attr_accessor :suspect_repo, :suspect_branch, :project,
                   :work_dir,     :debug, :env,
                   :project, :good_repo, :good_branch,
@@ -72,7 +74,7 @@ module EmberSecureBuilder
     end
 
     def copy_suspect_packages
-      clone_repos
+      raise CloneRepoError, "Can't clone repos." unless clone_repos
 
       FileUtils.rm_r good_repo_local_path.join('packages')
       FileUtils.cp_r suspect_repo_local_path.join('packages').to_s, good_repo_local_path.to_s
