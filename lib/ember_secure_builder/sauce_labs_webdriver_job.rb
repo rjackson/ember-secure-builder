@@ -159,6 +159,7 @@ module EmberSecureBuilder
     def save_result
       save_result_to_sauce_labs
       upload_to_s3
+      save_to_redis if sidekiq_job_id
     end
 
     def save_result_to_sauce_labs
@@ -188,10 +189,16 @@ module EmberSecureBuilder
       destination_path = results_path + "/#{platform}-#{browser}-#{version}.json"
 
       obj = bucket.objects[destination_path.gsub(' ', '_').downcase]
-      obj.write(build_s3_results, {:content_type => 'application/json'})
+      obj.write(build_results_hash, {:content_type => 'application/json'})
     end
 
-    def build_s3_results
+    def save_to_redis(redis = Redis.new)
+      redis.set  "cross_browser_test_batch:#{build}:#{sidekiq_job_id}:results", build_results_hash.to_json
+      redis.sadd "cross_browser_test_batch:#{build}:completed", sidekiq_job_id
+      redis.srem "cross_browser_test_batch:#{build}:pending", sidekiq_job_id
+    end
+
+    def build_results_hash
       {browser: browser, test_url: url,
        platform: platform, version: version,
        result: result, passed: passed?,

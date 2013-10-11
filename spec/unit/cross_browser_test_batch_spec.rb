@@ -54,8 +54,8 @@ module EmberSecureBuilder
     end
 
     describe "#register_batch" do
-      it "adds the current build to the 'cross_browser_test_batch' set" do
-        mock_redis.expect :sadd, 1, ['cross_browser_test_batch', build]
+      it "adds the current build to the 'cross_browser_test_batches' set" do
+        mock_redis.expect :sadd, 1, ['cross_browser_test_batches', build]
 
         batch.register_batch
 
@@ -80,7 +80,7 @@ module EmberSecureBuilder
       it "registers a job with the generated job_id" do
         def mock_worker.perform_async(*); 'hey hey boo boo'; end
 
-        mock_redis.expect :sadd, 1, ["cross_browser_test_batch:#{build}", "hey hey boo boo"]
+        mock_redis.expect :sadd, 1, ["cross_browser_test_batch:#{build}:pending", "hey hey boo boo"]
 
         batch.queue(platform)
 

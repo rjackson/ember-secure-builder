@@ -32,7 +32,7 @@ module EmberSecureBuilder
     end
 
     def register_batch
-      redis.sadd 'cross_browser_test_batch', build
+      redis.sadd 'cross_browser_test_batches', build
     end
 
     def queue_all
@@ -42,7 +42,7 @@ module EmberSecureBuilder
     def queue(platform)
       job_id = worker_class.perform_async job_options.merge(platform)
 
-      redis.sadd "cross_browser_test_batch:#{build}", job_id
+      redis.sadd "cross_browser_test_batch:#{build}:pending", job_id
 
       job_id
     end

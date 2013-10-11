@@ -166,6 +166,47 @@ module EmberSecureBuilder
       end
     end
 
+    describe "#save_result" do
+      before do
+        def sauce.save_result_to_sauce_labs; @save_result_to_sauce_labs_called = true; end
+        def sauce.save_result_to_sauce_labs_called; @save_result_to_sauce_labs_called; end
+
+        def sauce.upload_to_s3; @upload_to_s3_called = true; end
+        def sauce.upload_to_s3_called; @upload_to_s3_called; end
+
+        def sauce.save_to_redis; @save_to_redis_called = true; end
+        def sauce.save_to_redis_called; @save_to_redis_called; end
+      end
+
+      it "should call save_result_to_sauce_labs" do
+        sauce.save_result
+
+        assert sauce.save_result_to_sauce_labs_called
+      end
+
+      it "should call upload_to_s3" do
+        sauce.save_result
+
+        assert sauce.upload_to_s3_called
+      end
+
+      it "should save to redis when sidekiq_job_id is present" do
+        sauce.sidekiq_job_id = 'blah'
+
+        sauce.save_result
+
+        assert sauce.save_to_redis
+      end
+
+      it "should not save to redis without a sidekiq job" do
+        sauce.sidekiq_job_id = nil
+
+        sauce.save_result
+
+        refute sauce.save_to_redis_called
+      end
+    end
+
     describe "#upload_to_s3" do
       let(:fake_bucket)  { TestSupport::MockS3Bucket.new }
       let(:results_path) { 'fred/flinstone' }
@@ -180,7 +221,7 @@ module EmberSecureBuilder
           @build_s3_bucket_called
         end
 
-        def sauce.build_s3_results; 'random results'; end
+        def sauce.build_results_hash; 'random results'; end
       end
 
       describe "when no results_path is specified" do
@@ -217,7 +258,7 @@ module EmberSecureBuilder
         assert_equal 1, fake_bucket.objects.length
       end
 
-      it "saves data from build_s3_results" do
+      it "saves data from build_results_hash" do
         sauce.upload_to_s3(:bucket => fake_bucket)
 
         expected_dest = results_path + "/#{platform}-#{browser}-#{version}.json"
@@ -226,6 +267,49 @@ module EmberSecureBuilder
         s3_object = fake_bucket.objects[expected_dest]
 
         assert_equal 'random results', s3_object.source_path
+      end
+    end
+
+    describe "#save_to_redis" do
+      let(:mock_redis) { TestSupport::MockRedis.new }
+      let(:sidekiq_job_id) { SecureRandom.urlsafe_base64 }
+
+      def assert_redis_command(command)
+        called_commands = mock_redis.commands.map{|s| "\t#{s}"}.join("\n")
+        msg = "\nExpected uncalled redis command:\n\n\t#{command}\n\nThe following commands were called:\n\n#{called_commands}"
+
+        assert mock_redis.commands.include?(command), msg
+      end
+
+      before do
+        def sauce.build_results_hash; 'random results'; end
+
+        sauce.sidekiq_job_id = sidekiq_job_id
+        sauce.save_to_redis(mock_redis)
+      end
+
+      it "should add the results hash as json to redis" do
+        expected = [:set,
+                    "cross_browser_test_batch:#{build}:#{sidekiq_job_id}:results",
+                    sauce.build_results_hash.to_json]
+
+        assert_redis_command expected
+      end
+
+      it "should add the current job to the list of completed jobs" do
+        expected = [:sadd,
+                    "cross_browser_test_batch:#{build}:completed",
+                    sidekiq_job_id]
+
+        assert_redis_command expected
+      end
+
+      it "should remove the current job from the list of pending jobs" do
+        expected = [:srem,
+                    "cross_browser_test_batch:#{build}:pending",
+                    sidekiq_job_id]
+
+        assert_redis_command expected
       end
     end
   end

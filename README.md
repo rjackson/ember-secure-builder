@@ -138,7 +138,17 @@ Pre-Deploy Steps
 ## Redis Job Batch Tracking
 This runs from within `SauceLabsWorker.queue_cross_browser_tests`:
 
-* Create a redis set for the current build (<SHA>)
-* Add each job to the set (perhaps using a unique id per job)
-* When the job finishes it removes itself from the set.
-* When job finishes it adds results to a `<SHA>:results` list.
+* **DONE** Keep a list of running build batches in a set.
+* **DONE** Create a redis set for the current build (<SHA>)
+* **DONE** Add each job to the set
+* **DONE** When the job finishes it removes itself from the pending set and adds itself
+  to the completed set.
+* **DONE** When job finishes it saves its results.
+
+### Redis Key Structure
+
+* `cross_browser_test_batches` (SET) contains an entry for each unique batch (using the <SHA>)
+* `cross_browser_test_batch:<SHA>:pending` (SET) contains an entry for each queued sidekiq jid
+* `cross_browser_test_batch:<SHA>:completed` (SET) contains an entry for each queued sidekiq jid that has finished
+* `cross_browser_test_batch:<SHA>:<JID>:results` (STRING) contains a JSON hash of the jobs results
+
