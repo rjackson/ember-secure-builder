@@ -79,6 +79,10 @@ module EmberSecureBuilder
          'results_path' => 'foo/bar/baz'}
       end
 
+      before do
+        CrossBrowserTestBatch.instance_variable_set(:@redis, TestSupport::MockRedis.new)
+      end
+
       describe "authentication" do
         it "requires authentication" do
           post '/queue-browser-tests', valid_params
@@ -125,7 +129,7 @@ module EmberSecureBuilder
 
         it "should provide the correct arguments to the queued worker" do
           worker.jobs.each do |job|
-            args = job['args'].first
+            args, _ = job['args']
 
             assert_equal valid_params['test_url'], args['url']
             assert_equal valid_params['project_name'], args['name']

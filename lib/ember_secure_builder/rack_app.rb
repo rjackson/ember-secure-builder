@@ -54,14 +54,13 @@ module EmberSecureBuilder
 
       halt 400 unless repo && build && test_url
 
-      options = { test_options: { url: test_url,
-                                  name: name,
-                                  tags: tags,
-                                  build: build,
-                                  results_path: results_path} }
+      options = { url: test_url,
+                  name: name,
+                  tags: tags,
+                  build: build,
+                  results_path: results_path }
 
-      workers = SauceLabsWorker.queue_cross_browser_tests options
-      workers.to_json
+      CrossBrowserTestBatch.queue(options).to_json
     end
   end
 end

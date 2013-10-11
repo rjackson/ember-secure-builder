@@ -13,12 +13,13 @@ module EmberSecureBuilder
     let(:good_branch) { 'master' }
     let(:good_repo_path) { Pathname.new 'spec/support/test_repos/good_repo' }
     let(:good_repo_url) { "file://#{good_repo_path.realpath}" }
+    let(:mock_batch_class) { Minitest::Mock.new  }
 
     let(:builder) do
       AssetBuilder.new(project, suspect_repo: suspect_repo_url,
                        suspect_branch: suspect_branch,
                        good_repo: good_repo_url, good_branch: good_branch,
-                       debug: false)
+                       debug: false, cross_browser_test_batch: mock_batch_class)
     end
 
     after do
@@ -289,13 +290,23 @@ module EmberSecureBuilder
       let(:mock_worker) { Minitest::Mock.new }
 
       before do
-        mock_worker.expect :queue_cross_browser_tests, nil, [Hash]
-
         def builder.last_suspect_repo_commit; 'some sha'; end
-        def builder.build_test_url; 'some url'; end
+        def builder.test_url; 'some url'; end
+        def builder.project_name; 'Whoo hoo'; end
+        def builder.project_prefix; 'whoo-hoo'; end
       end
 
       it "queues tests for the default platforms" do
+        expected_argument = {
+          :url   => 'some url',
+          :name  => 'Whoo hoo',
+          :build => 'some sha',
+          :tags  => ['whoo-hoo', builder.suspect_branch],
+          :results_path => builder.asset_destination_path
+        }
+
+        mock_worker.expect :queue, nil, [expected_argument]
+
         builder.queue_cross_browser_tests mock_worker
 
         mock_worker.verify

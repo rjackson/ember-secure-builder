@@ -132,3 +132,13 @@ Pre-Deploy Steps
   * The rack endpoint (aka `project_name.emberjs.com`)
   * The S3 bucket for PR builds
   * The static site Ember app for displaying cross-browser results.
+
+
+
+## Redis Job Batch Tracking
+This runs from within `SauceLabsWorker.queue_cross_browser_tests`:
+
+* Create a redis set for the current build (<SHA>)
+* Add each job to the set (perhaps using a unique id per job)
+* When the job finishes it removes itself from the set.
+* When job finishes it adds results to a `<SHA>:results` list.

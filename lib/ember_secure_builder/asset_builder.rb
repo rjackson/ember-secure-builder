@@ -11,7 +11,8 @@ module EmberSecureBuilder
                   :work_dir,     :debug, :env,
                   :project, :good_repo, :good_branch,
                   :asset_source_path, :asset_destination_path,
-                  :pull_request_number, :last_suspect_repo_commit
+                  :pull_request_number, :last_suspect_repo_commit,
+                  :cross_browser_test_batch_class
 
     def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
       builder = new(repository)
@@ -40,6 +41,7 @@ module EmberSecureBuilder
 
       self.asset_source_path      = options[:asset_source_path]
       self.asset_destination_path = options[:asset_destination_path]
+      self.cross_browser_test_batch_class = options.fetch(:cross_browser_test_batch_class, CrossBrowserTestBatch)
     end
 
     def load_from_pull_request(repo, pull_request_number)
@@ -108,16 +110,16 @@ module EmberSecureBuilder
       end
     end
 
-    def queue_cross_browser_tests(worker_class = SauceLabsWorker)
-      worker_class.queue_cross_browser_tests(test_options: cross_browser_test_defaults)
-    end
-
     def good_repo
       @good_repo ||= default_good_repo
     end
 
     def good_branch
       @good_branch ||= default_good_branch
+    end
+
+    def queue_cross_browser_tests(batch_class = CrossBrowserTestBatch)
+      batch_class.queue cross_browser_test_defaults
     end
 
     def cross_browser_test_defaults
