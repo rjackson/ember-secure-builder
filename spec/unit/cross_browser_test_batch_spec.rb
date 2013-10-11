@@ -78,9 +78,8 @@ module EmberSecureBuilder
       let(:platform) { platforms.first }
 
       it "registers a job with the generated job_id" do
-        def mock_worker.perform_async(*); end
+        def mock_worker.perform_async(*); 'hey hey boo boo'; end
 
-        def batch.generate_job_id; 'hey hey boo boo'; end
         mock_redis.expect :sadd, 1, ["cross_browser_test_batch:#{build}", "hey hey boo boo"]
 
         batch.queue(platform)
@@ -88,28 +87,14 @@ module EmberSecureBuilder
         mock_redis.verify
       end
 
-      it "creates a job_id for the provided platform" do
-        def mock_redis.sadd(*); end
-        def mock_worker.perform_async(*); end
-
-        def batch.generate_job_id; @generate_job_id_called = true; end
-        def batch.generate_job_id_called; @generate_job_id_called; end
-
-        batch.queue(platforms.first)
-
-        assert batch.generate_job_id_called
-      end
-
       it "queues the job" do
         def mock_redis.sadd(*); end
-        def batch.generate_job_id; 'hey hey boo boo'; end
 
         expected_options = { build: build,
                              url: url,
                              name: name,
                              tags: tags,
-                             results_path: results_path,
-                             job_id: 'hey hey boo boo' }.merge(platform)
+                             results_path: results_path}.merge(platform)
 
         mock_worker.expect :perform_async, nil, [expected_options]
 

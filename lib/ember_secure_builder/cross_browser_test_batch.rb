@@ -40,12 +40,9 @@ module EmberSecureBuilder
     end
 
     def queue(platform)
-      job_id = generate_job_id
+      job_id = worker_class.perform_async job_options.merge(platform)
 
       redis.sadd "cross_browser_test_batch:#{build}", job_id
-
-      options = job_options.merge(platform).merge(job_id: job_id)
-      worker_class.perform_async options
 
       job_id
     end
@@ -58,10 +55,6 @@ module EmberSecureBuilder
         name: name,
         tags: tags,
         results_path: results_path}
-    end
-
-    def generate_job_id
-      SecureRandom.urlsafe_base64
     end
   end
 end

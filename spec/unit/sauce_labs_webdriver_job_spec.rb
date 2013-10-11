@@ -9,19 +9,21 @@ module EmberSecureBuilder
     let(:mock_capabilities_class) { Minitest::Mock.new }
     let(:mock_driver_class)       { Minitest::Mock.new }
 
-    let(:sauce) do
-      SauceLabsWebdriverJob.new(username: username,
-                                access_key: access_key,
-                                platform: platform,
-                                browser: browser,
-                                version: version,
-                                url: url,
-                                name: job_name,
-                                build: build,
-                                tags: tags,
-                                capabilities_class: mock_capabilities_class,
-                                driver_class: mock_driver_class,
-                                results_path: results_path)
+    let(:sauce) { SauceLabsWebdriverJob.new(options) }
+
+    let(:options) do
+      {username: username,
+       access_key: access_key,
+       platform: platform,
+       browser: browser,
+       version: version,
+       url: url,
+       name: job_name,
+       build: build,
+       tags: tags,
+       capabilities_class: mock_capabilities_class,
+       driver_class: mock_driver_class,
+       results_path: results_path}
     end
 
     let(:username)    { SecureRandom.urlsafe_base64 }
@@ -129,6 +131,15 @@ module EmberSecureBuilder
         sauce.driver
 
         mock_driver_class.verify
+      end
+    end
+
+    describe "#sidekiq_job_id" do
+      it "is available if passed in on init" do
+        job_id = SecureRandom.urlsafe_base64
+        sauce = SauceLabsWebdriverJob.new options.merge(sidekiq_job_id: job_id)
+
+        assert_equal job_id, sauce.sidekiq_job_id
       end
     end
 

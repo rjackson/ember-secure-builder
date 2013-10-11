@@ -9,7 +9,7 @@ module EmberSecureBuilder
       :browser, :platform, :version,
       :name, :url, :build, :tags, :env,
       :driver_class, :capabilities_class,
-      :results_path
+      :results_path, :sidekiq_job_id
 
     def self.default_platforms
       [
@@ -47,6 +47,7 @@ module EmberSecureBuilder
       self.platform   = options[:platform]
       self.version    = options.fetch(:version, '')
       self.results_path = options.fetch(:results_path, nil)
+      self.sidekiq_job_id = options.fetch(:sidekiq_job_id, nil)
 
       self.tags       = options.fetch(:tags, [])
       self.build      = options.fetch(:build, '')

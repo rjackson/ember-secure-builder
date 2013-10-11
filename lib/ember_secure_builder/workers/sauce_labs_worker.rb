@@ -9,9 +9,9 @@ module EmberSecureBuilder
 
     SAUCE_LABS_POOL = ConnectionPool.new(:size => 8) { "Must pass a block here, even though we don't care..." }
 
-    def perform(options)
+    def perform(options, job_class = SauceLabsWebdriverJob)
       SAUCE_LABS_POOL.with do
-        SauceLabsWebdriverJob.run!(options)
+        job_class.run!(options.merge(sidekiq_job_id: jid))
       end
     end
   end
