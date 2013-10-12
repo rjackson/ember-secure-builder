@@ -12,10 +12,10 @@ module EmberSecureBuilder
                   :project, :good_repo, :good_branch,
                   :asset_source_path, :asset_destination_path,
                   :pull_request_number, :last_suspect_repo_commit,
-                  :cross_browser_test_batch_class
+                  :cross_browser_test_batch_class, :disable_auto_cleanup
 
     def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
-      builder = new(repository)
+      builder = new(repository, disable_auto_cleanup: true)
       builder.load_from_pull_request(repository, pull_request_number)
       builder.build
       builder.upload
@@ -23,6 +23,8 @@ module EmberSecureBuilder
       if perform_cross_browser_tests
         builder.queue_cross_browser_tests
       end
+
+      builder.cleanup
     end
 
     def initialize(project, options = nil)
@@ -40,6 +42,7 @@ module EmberSecureBuilder
       self.work_dir    = options.fetch(:work_dir) { build_work_dir }
 
       self.asset_source_path      = options[:asset_source_path]
+      self.disable_auto_cleanup   = options.fetch(:disable_auto_cleanup, false)
       self.asset_destination_path = options[:asset_destination_path]
       self.cross_browser_test_batch_class = options.fetch(:cross_browser_test_batch_class, CrossBrowserTestBatch)
     end
@@ -215,7 +218,7 @@ module EmberSecureBuilder
 
       dir.mkpath unless dir.directory?
 
-      at_exit{ cleanup }
+      at_exit{ cleanup } unless disable_auto_cleanup
 
       dir
     end
