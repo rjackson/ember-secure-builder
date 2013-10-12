@@ -15,12 +15,14 @@ module EmberSecureBuilder
         :redis => mock_redis,
         :platforms    => platforms,
         :results_path => results_path,
-        :worker_class => mock_worker
+        :worker_class => mock_worker,
+        :results_worker_class => mock_results_worker
       }
     end
 
     let(:mock_redis)   { TestSupport::MockRedis.new }
     let(:mock_worker)  { Minitest::Mock.new }
+    let(:mock_results_worker) { Minitest::Mock.new }
     let(:url)          { "https://blahblah.com/something/#{SecureRandom.urlsafe_base64}" }
     let(:results_path) { SecureRandom.urlsafe_base64 }
     let(:job_name)     { SecureRandom.urlsafe_base64 }
@@ -53,13 +55,25 @@ module EmberSecureBuilder
     end
 
     describe "#queue_all" do
-      it "calls queue for each platform" do
+      before do
         def batch.queue(platform); @queued_platforms ||= []; @queued_platforms << platform; end
         def batch.queued_platforms; @queued_platforms; end
+      end
+
+      it "calls queue for each platform" do
+        def mock_results_worker.perform_in(*); end
 
         batch.queue_all
 
         assert_equal platforms, batch.queued_platforms
+      end
+
+      it "queues the results worker" do
+        mock_results_worker.expect :perform_in, nil, [250, build]
+
+        batch.queue_all
+
+        mock_results_worker.verify
       end
     end
 

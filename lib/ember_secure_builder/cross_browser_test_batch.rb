@@ -5,7 +5,7 @@ module EmberSecureBuilder
     attr_accessor :build, :url, :name, :tags,
                   :results_path,
                   :platforms, :redis, :worker_class,
-                  :initial_options
+                  :initial_options, :results_worker_class
 
     def self.redis
       @redis ||= Redis.new
@@ -29,6 +29,7 @@ module EmberSecureBuilder
       self.redis        = options.fetch(:redis)        { self.class.redis }
       self.platforms    = options.fetch(:platforms)    { SauceLabsWebdriverJob.default_platforms }
       self.worker_class = options.fetch(:worker_class) { SauceLabsWorker }
+      self.results_worker_class = options.fetch(:results_worker_class) { CrossBrowserTestBatchResultsWorker }
     end
 
     def register_batch
@@ -38,6 +39,8 @@ module EmberSecureBuilder
 
     def queue_all
       platforms.map{|hash| queue(hash) }
+
+      results_worker_class.perform_in 250, build
     end
 
     def queue(platform)
