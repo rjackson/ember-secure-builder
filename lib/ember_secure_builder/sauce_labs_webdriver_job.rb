@@ -189,7 +189,7 @@ module EmberSecureBuilder
       destination_path = results_path + "/#{platform}-#{browser}-#{version}.json"
 
       obj = bucket.objects[destination_path.gsub(' ', '_').downcase]
-      obj.write(build_results_hash, {:content_type => 'application/json'})
+      obj.write(build_results_hash.to_json, {:content_type => 'application/json'})
     end
 
     def save_to_redis(redis = Redis.new)
@@ -202,7 +202,7 @@ module EmberSecureBuilder
       {browser: browser, test_url: url,
        platform: platform, version: version,
        result: result, passed: passed?,
-       build: build, tags: tags}.to_json
+       build: build, tags: tags}
     end
 
     private

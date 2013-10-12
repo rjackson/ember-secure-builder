@@ -266,7 +266,7 @@ module EmberSecureBuilder
 
         s3_object = fake_bucket.objects[expected_dest]
 
-        assert_equal 'random results', s3_object.source_path
+        assert_equal 'random results'.to_json, s3_object.source_path
       end
     end
 
