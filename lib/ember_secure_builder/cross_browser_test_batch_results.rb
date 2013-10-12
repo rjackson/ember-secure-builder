@@ -12,7 +12,7 @@ module EmberSecureBuilder
     end
 
     def details
-      @details ||= JSON.parse(redis.get("cross_browser_test_batch:#{build}:detail"))
+      @details ||= JSON.parse(redis.get(key_prefix + ":detail"))
     end
 
     def completed?
@@ -20,15 +20,15 @@ module EmberSecureBuilder
     end
 
     def pending_jobs
-      @pending_jobs ||= redis.smembers "cross_browser_test_batch:#{build}:pending"
+      @pending_jobs ||= redis.smembers key_prefix + ":pending"
     end
 
     def completed_jobs
-      @completed_jobs ||= redis.smembers "cross_browser_test_batch:#{build}:completed"
+      @completed_jobs ||= redis.smembers key_prefix + ":completed"
     end
 
     def job_results
-      result_keys   = completed_jobs.map{|jid| "cross_browser_test_batch:#{build}:#{jid}:results" }
+      result_keys   = completed_jobs.map{|jid| key_prefix + ":#{jid}:results" }
       result_values = redis.mget *result_keys
       parsed_values = result_values.map{|v| JSON.parse(v) }
 
@@ -55,6 +55,10 @@ module EmberSecureBuilder
     end
 
     private
+
+    def key_prefix
+      "cross_browser_test_batch:#{build}"
+    end
 
     def build_s3_bucket
       s3 = AWS::S3.new(:access_key_id => ENV['S3_ACCESS_KEY_ID'],
