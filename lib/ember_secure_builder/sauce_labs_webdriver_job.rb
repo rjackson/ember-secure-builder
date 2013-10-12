@@ -18,7 +18,6 @@ module EmberSecureBuilder
         {:browser => :iphone,            :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
         {:browser => :ipad,              :platform => 'OS X 10.8',  :version => 6,     'device-orientation' => 'landscape'},
         {:browser => :firefox,           :platform => 'Windows 7',  :version => 24},
-        {:browser => :opera,             :platform => 'Windows 7',  :version => 12},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
@@ -30,6 +29,7 @@ module EmberSecureBuilder
     def self.all_platforms
       default_platforms + [
         {:browser => :android,           :platform => 'Linux',      :version => '4.0', 'device-orientation' => 'landscape'},
+        {:browser => :opera,             :platform => 'Windows 7',  :version => 12},
       ]
     end
 
