@@ -10,7 +10,7 @@ module EmberSecureBuilder
 
       if batch_results.completed?
         #batch_results.cleanup
-      else if times_requeued < 30
+      elsif times_requeued < 30
         CrossBrowserTestBatchResultsWorker.perform_in 120, build, times_requeued + 1
       end
     end
