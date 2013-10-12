@@ -16,28 +16,8 @@ module EmberSecureBuilder
         self.commands = []
       end
 
-      def sadd(*args)
-        commands << [:sadd, *args]
-      end
-
-      def srem(*args)
-        commands << [:srem, *args]
-      end
-
-      def smembers(*args)
-        commands << [:smembers, *args]
-      end
-
-      def set(*args)
-        commands << [:set, *args]
-      end
-
-      def get(*args)
-        commands << [:get, *args]
-      end
-
-      def mget(*args)
-        commands << [:mget, *args]
+      def method_missing(method_called, *args)
+        commands << [method_called, *args]
       end
     end
   end
