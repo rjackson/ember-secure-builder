@@ -3,7 +3,11 @@ module EmberSecureBuilder
     attr_accessor :build, :redis
 
     def self.upload!(build)
-      new(build).upload_results
+      batch_results = new(build)
+      batch_results.upload_results
+      batch_results.cleanup if batch_results.completed?
+
+      batch_results
     end
 
     def initialize(build, redis = Redis.new)
@@ -52,6 +56,18 @@ module EmberSecureBuilder
 
     def combined_results_hash
       details.merge('completed' => completed?, 'job_results' => job_results.values)
+    end
+
+    def cleanup
+      redis.srem "cross_browser_test_batches", build
+      redis.del key_prefix + ":detail"
+      redis.del key_prefix + ":pending"
+
+      completed_jobs.each do |job_id|
+        redis.del key_prefix + ":#{job_id}:results"
+      end
+
+      redis.del key_prefix + ":completed"
     end
 
     private

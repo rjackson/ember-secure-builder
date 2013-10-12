@@ -186,6 +186,38 @@ module EmberSecureBuilder
       end
     end
 
+    describe "#cleanup" do
+      let(:key_prefix) { "cross_browser_test_batch:#{build}" }
+
+      before do
+        def results.completed_jobs; ['foo','bar','baz','biff']; end
+
+        results.cleanup
+      end
+
+      it "should delete the batches entry in the batch listing" do
+        assert_redis_command [:srem, "cross_browser_test_batches", build]
+      end
+
+      it "should delete the batch details" do
+        assert_redis_command [:del, key_prefix + ":detail"]
+      end
+
+      it "should delete the pending jobs set" do
+        assert_redis_command [:del, key_prefix + ":pending"]
+      end
+
+      it "should delete the results for each job" do
+        results.completed_jobs.each do |job_id|
+          assert_redis_command [:del, key_prefix + ":#{job_id}:results"]
+        end
+      end
+
+      it "should delete the completed jobs set" do
+        assert_redis_command [:del, key_prefix + ":completed"]
+      end
+    end
+
   end
 end
 
