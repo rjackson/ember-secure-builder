@@ -114,18 +114,7 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
   * `tags` - This will be used as tags with Sauce Labs (to make filtering easier).
   * `results_path` - The relative path within the S3 bucket to place the results.
 
-##Tasks TODO
-
-* **DONE** Make work properly for Ember Data.
-* **DONE** Save results off to S3 for each Sauce Labs run (namespaced under the PR path).
-* **DONE** Create Webhook for triggering the Sauce Labs jobs directly (without going through AssetBuilder first).
-* Use Github commit status API to indicate pass/fail build status.
-* Create UI for reviewing historical Sauce Labs runs for a specific build.
-  * Save run details to JSON file in S3 in sub-folder of assets directory.
-  * Create a simple Ember app to display the status of a given commit/PR.
-  * Needs to show browsers along with failure status and any errors.
-
-Pre-Deploy Steps
+## Pre-Deploy Steps
 * Move project under `emberjs` on Github.
 * Create S3 bucket for PR builds (`pr-builds.emberjs.com`?)
 * Create DNS entries
@@ -135,17 +124,7 @@ Pre-Deploy Steps
 
 
 
-## Redis Job Batch Tracking
-This runs from within `SauceLabsWorker.queue_cross_browser_tests`:
-
-* **DONE** Keep a list of running build batches in a set.
-* **DONE** Create a redis set for the current build (<SHA>)
-* **DONE** Add each job to the set
-* **DONE** When the job finishes it removes itself from the pending set and adds itself
-  to the completed set.
-* **DONE** When job finishes it saves its results.
-
-### Redis Key Structure
+## Redis Key Structure
 
 * `cross_browser_test_batches` (SET) contains an entry for each unique batch (using the <SHA>)
 * `cross_browser_test_batch:<SHA>:detail` (STRING) contains a JSON hash of the batches original options
