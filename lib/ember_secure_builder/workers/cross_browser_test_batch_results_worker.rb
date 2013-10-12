@@ -2,16 +2,16 @@ require 'sidekiq'
 
 module EmberSecureBuilder
   class CrossBrowserTestBatchResultsWorker
-    class IncompleteResultsError < StandardError; end
-
     include Sidekiq::Worker
 
-    def perform(build)
+    def perform(build, times_requeued = 0)
       batch_results = CrossBrowserTestBatchResults.new build
       batch_results.upload_results
 
-      unless batch_results.completed?
-        throw IncompleteResultsError, "Not finished yet. #{batch_results.pending_jobs.length} jobs still pending."
+      if batch_results.completed?
+        #batch_results.cleanup
+      else if times_requeued < 30
+        CrossBrowserTestBatchResultsWorker.perform_in 120, build, times_requeued + 1
       end
     end
   end
