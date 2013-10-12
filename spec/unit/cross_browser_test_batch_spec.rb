@@ -3,6 +3,7 @@ require 'spec_helper'
 
 module EmberSecureBuilder
   describe CrossBrowserTestBatch do
+    include TestSupport::RedisAssertion
 
     let(:batch) { CrossBrowserTestBatch.new options }
     let(:options)  do
@@ -18,7 +19,7 @@ module EmberSecureBuilder
       }
     end
 
-    let(:mock_redis)   { Minitest::Mock.new }
+    let(:mock_redis)   { TestSupport::MockRedis.new }
     let(:mock_worker)  { Minitest::Mock.new }
     let(:url)          { "https://blahblah.com/something/#{SecureRandom.urlsafe_base64}" }
     let(:results_path) { SecureRandom.urlsafe_base64 }
@@ -27,22 +28,6 @@ module EmberSecureBuilder
                           {browser: 'firefox', platform: 'Windows 7', version: 24}] }
     let(:build)        { SecureRandom.urlsafe_base64 }
     let(:tags)         { [] }
-
-    before do
-      #def mock_redis.multi; [yield] * 2 if block_given?; end
-      #def mock_redis.set(*); true; end
-      #def mock_redis.sadd(*); true; end
-      #def mock_redis.srem(*); true; end
-      #def mock_redis.get(*); nil; end
-      #def mock_redis.del(*); nil; end
-      #def mock_redis.incrby(*); nil; end
-      #def mock_redis.setex(*); true; end
-      #def mock_redis.expire(*); true; end
-      #def mock_redis.watch(*); true; end
-      #def mock_redis.with_connection; yield self; end
-      #def mock_redis.with; yield self; end
-      #def mock_redis.exec; true; end
-    end
 
     it "sets up attributes on init" do
       assert_equal build, batch.build
@@ -55,11 +40,15 @@ module EmberSecureBuilder
 
     describe "#register_batch" do
       it "adds the current build to the 'cross_browser_test_batches' set" do
-        mock_redis.expect :sadd, 1, ['cross_browser_test_batches', build]
-
         batch.register_batch
 
-        mock_redis.verify
+        assert_redis_command [:sadd, 'cross_browser_test_batches', build]
+      end
+
+      it "adds the initial options to the detail hash" do
+        batch.register_batch
+
+        assert_redis_command [:set, "cross_browser_test_batch:#{build}:detail", options.to_json]
       end
     end
 
@@ -79,12 +68,9 @@ module EmberSecureBuilder
 
       it "registers a job with the generated job_id" do
         def mock_worker.perform_async(*); 'hey hey boo boo'; end
-
-        mock_redis.expect :sadd, 1, ["cross_browser_test_batch:#{build}:pending", "hey hey boo boo"]
-
         batch.queue(platform)
 
-        mock_redis.verify
+        assert_redis_command [:sadd, "cross_browser_test_batch:#{build}:pending", "hey hey boo boo"]
       end
 
       it "queues the job" do
@@ -100,7 +86,7 @@ module EmberSecureBuilder
 
         batch.queue(platform)
 
-        mock_redis.verify
+        mock_worker.verify
       end
     end
   end

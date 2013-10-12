@@ -171,9 +171,6 @@ module EmberSecureBuilder
         def sauce.save_result_to_sauce_labs; @save_result_to_sauce_labs_called = true; end
         def sauce.save_result_to_sauce_labs_called; @save_result_to_sauce_labs_called; end
 
-        def sauce.upload_to_s3; @upload_to_s3_called = true; end
-        def sauce.upload_to_s3_called; @upload_to_s3_called; end
-
         def sauce.save_to_redis; @save_to_redis_called = true; end
         def sauce.save_to_redis_called; @save_to_redis_called; end
       end
@@ -182,12 +179,6 @@ module EmberSecureBuilder
         sauce.save_result
 
         assert sauce.save_result_to_sauce_labs_called
-      end
-
-      it "should call upload_to_s3" do
-        sauce.save_result
-
-        assert sauce.upload_to_s3_called
       end
 
       it "should save to redis when sidekiq_job_id is present" do
@@ -207,79 +198,11 @@ module EmberSecureBuilder
       end
     end
 
-    describe "#upload_to_s3" do
-      let(:fake_bucket)  { TestSupport::MockS3Bucket.new }
-      let(:results_path) { 'fred/flinstone' }
-
-      before do
-        def sauce.build_s3_bucket
-          @build_s3_bucket_called = true
-          TestSupport::MockS3Bucket.new
-        end
-
-        def sauce.build_s3_bucket_called
-          @build_s3_bucket_called
-        end
-
-        def sauce.build_results_hash; 'random results'; end
-      end
-
-      describe "when no results_path is specified" do
-        let(:results_path) { nil }
-
-        it "doesn't add any files to the bucket" do
-          sauce.upload_to_s3(:bucket => fake_bucket)
-
-          assert_equal 0, fake_bucket.objects.length
-        end
-
-        it "doesn't call build_s3_bucket" do
-          sauce.upload_to_s3
-
-          refute sauce.build_s3_bucket_called
-        end
-      end
-
-      it "calls build_s3_bucket if no bucket is provided" do
-        sauce.upload_to_s3
-
-        assert sauce.build_s3_bucket_called
-      end
-
-      it "uses the bucket if provided" do
-        sauce.upload_to_s3(:bucket => fake_bucket)
-
-        refute sauce.build_s3_bucket_called
-      end
-
-      it "uploads files" do
-        sauce.upload_to_s3(:bucket => fake_bucket)
-
-        assert_equal 1, fake_bucket.objects.length
-      end
-
-      it "saves data from build_results_hash" do
-        sauce.upload_to_s3(:bucket => fake_bucket)
-
-        expected_dest = results_path + "/#{platform}-#{browser}-#{version}.json"
-        expected_dest = expected_dest.downcase.gsub(' ', '_')
-
-        s3_object = fake_bucket.objects[expected_dest]
-
-        assert_equal 'random results'.to_json, s3_object.source_path
-      end
-    end
-
     describe "#save_to_redis" do
+      include TestSupport::RedisAssertion
+
       let(:mock_redis) { TestSupport::MockRedis.new }
       let(:sidekiq_job_id) { SecureRandom.urlsafe_base64 }
-
-      def assert_redis_command(command)
-        called_commands = mock_redis.commands.map{|s| "\t#{s}"}.join("\n")
-        msg = "\nExpected uncalled redis command:\n\n\t#{command}\n\nThe following commands were called:\n\n#{called_commands}"
-
-        assert mock_redis.commands.include?(command), msg
-      end
 
       before do
         def sauce.build_results_hash; 'random results'; end

@@ -21,9 +21,9 @@ module EmberSecureBuilder
         {:browser => :opera,             :platform => 'Windows 7',  :version => 12},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 10},
         {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 9},
-        {:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
-        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 7},
-        {:browser => :internet_explorer, :platform => 'Windows XP', :version => 6},
+        #{:browser => :internet_explorer, :platform => 'Windows 7',  :version => 8},
+        #{:browser => :internet_explorer, :platform => 'Windows XP', :version => 7},
+        #{:browser => :internet_explorer, :platform => 'Windows XP', :version => 6},
       ]
     end
 
@@ -158,7 +158,6 @@ module EmberSecureBuilder
 
     def save_result
       save_result_to_sauce_labs
-      upload_to_s3
       save_to_redis if sidekiq_job_id
     end
 
@@ -179,17 +178,6 @@ module EmberSecureBuilder
       payload  = JSON.parse(response.body)
 
       payload['status'] == 'complete'
-    end
-
-    def upload_to_s3(options = {})
-      return unless results_path
-
-      bucket = options.fetch(:bucket) { build_s3_bucket }
-
-      destination_path = results_path + "/#{platform}-#{browser}-#{version}.json"
-
-      obj = bucket.objects[destination_path.gsub(' ', '_').downcase]
-      obj.write(build_results_hash.to_json, {:content_type => 'application/json'})
     end
 
     def save_to_redis(redis = Redis.new)
@@ -221,13 +209,6 @@ module EmberSecureBuilder
       client = Selenium::WebDriver::Remote::Http::Default.new
       client.timeout = 180
       client
-    end
-
-    def build_s3_bucket
-      s3 = AWS::S3.new(:access_key_id => env['S3_ACCESS_KEY_ID'],
-                       :secret_access_key => env['S3_SECRET_ACCESS_KEY'])
-
-      s3.buckets[env['S3_BUCKET_NAME']]
     end
   end
 end

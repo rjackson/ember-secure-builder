@@ -33,6 +33,7 @@ module EmberSecureBuilder
 
     def register_batch
       redis.sadd 'cross_browser_test_batches', build
+      redis.set "cross_browser_test_batch:#{build}:detail", initial_options.to_json
     end
 
     def queue_all
