@@ -8,8 +8,8 @@ module EmberSecureBuilder
       batch_results = CrossBrowserTestBatchResults.upload! build
 
       if batch_results.completed?
-      elsif times_requeued < 30
-        CrossBrowserTestBatchResultsWorker.perform_in 120, build, times_requeued + 1
+      elsif times_requeued < 150
+        CrossBrowserTestBatchResultsWorker.perform_in 300, build, times_requeued + 1
       end
     end
   end
