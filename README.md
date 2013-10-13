@@ -128,6 +128,7 @@ The webhook endpoint (`EmberSecureBuilder::RackApp`) uses the following URL endp
 
 * `cross_browser_test_batches` (SET) contains an entry for each unique batch (using the <SHA>)
 * `cross_browser_test_batch:<SHA>:detail` (STRING) contains a JSON hash of the batches original options
+* `cross_browser_test_batch:<SHA>:results` (STRING) contains a JSON hash of the batches original options along with the results of all test jobs.
 * `cross_browser_test_batch:<SHA>:pending` (SET) contains an entry for each queued sidekiq jid
 * `cross_browser_test_batch:<SHA>:completed` (SET) contains an entry for each queued sidekiq jid that has finished
 * `cross_browser_test_batch:<SHA>:<JID>:results` (STRING) contains a JSON hash of the jobs results

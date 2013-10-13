@@ -5,11 +5,9 @@ module EmberSecureBuilder
     include Sidekiq::Worker
 
     def perform(build, times_requeued = 0)
-      batch_results = CrossBrowserTestBatchResults.new build
-      batch_results.upload_results
+      batch_results = CrossBrowserTestBatchResults.upload! build
 
       if batch_results.completed?
-        #batch_results.cleanup
       elsif times_requeued < 30
         CrossBrowserTestBatchResultsWorker.perform_in 120, build, times_requeued + 1
       end

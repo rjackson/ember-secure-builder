@@ -1,10 +1,12 @@
 module EmberSecureBuilder
   class CrossBrowserTestBatchResults
+    include S3Uploader
+
     attr_accessor :build, :redis
 
     def self.upload!(build)
       batch_results = new(build)
-      batch_results.upload_results
+      batch_results.save
       batch_results.cleanup if batch_results.completed?
 
       batch_results
@@ -32,22 +34,15 @@ module EmberSecureBuilder
     end
 
     def job_results
-      result_keys   = completed_jobs.map{|jid| key_prefix + ":#{jid}:results" }
-      result_values = redis.mget *result_keys
-      parsed_values = result_values.map{|v| JSON.parse(v) }
-
-      Hash[completed_jobs.zip parsed_values]
+      @job_results ||= build_job_results
     end
 
-    def upload_results(options = {})
-      return unless results_path
+    def save
+      redis.set key_prefix + ":results", summary_results_hash.to_json
 
-      bucket = options.fetch(:bucket) { build_s3_bucket }
-
-      destination_path = results_path + "/results.json"
-
-      obj = bucket.objects[destination_path.gsub(' ', '_').downcase]
-      obj.write(combined_results_hash.to_json, {:content_type => 'application/json'})
+      if results_path
+        upload(results_path + "/results.json", combined_results_hash.to_json)
+      end
     end
 
     def results_path
@@ -56,6 +51,18 @@ module EmberSecureBuilder
 
     def combined_results_hash
       details.merge('completed' => completed?, 'job_results' => job_results.values)
+    end
+
+    def summary_results_hash
+      passed_jobs = job_results.values.select{|job| job['passed']}
+      failed_jobs = job_results.values.reject{|job| job['passed']}
+
+      passed = failed_jobs.empty?
+
+      passed_browsers = passed_jobs.map{|job| [job['browser'], job['version']].join(' ') }
+      failed_browsers = failed_jobs.map{|job| [job['browser'], job['version']].join(' ') }
+
+      details.merge('passed?' => passed, 'passed' => passed_browsers, 'failed' => failed_browsers)
     end
 
     def cleanup
@@ -72,15 +79,16 @@ module EmberSecureBuilder
 
     private
 
-    def key_prefix
-      "cross_browser_test_batch:#{build}"
+    def build_job_results
+      result_keys   = completed_jobs.map{|jid| key_prefix + ":#{jid}:results" }
+      result_values = redis.mget *result_keys
+      parsed_values = result_values.map{|v| JSON.parse(v) }
+
+      Hash[completed_jobs.zip parsed_values]
     end
 
-    def build_s3_bucket
-      s3 = AWS::S3.new(:access_key_id => ENV['S3_ACCESS_KEY_ID'],
-                       :secret_access_key => ENV['S3_SECRET_ACCESS_KEY'])
-
-      s3.buckets[ENV['S3_BUCKET_NAME']]
+    def key_prefix
+      "cross_browser_test_batch:#{build}"
     end
   end
 end

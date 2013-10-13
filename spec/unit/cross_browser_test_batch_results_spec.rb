@@ -8,6 +8,8 @@ module EmberSecureBuilder
     let(:results) { CrossBrowserTestBatchResults.new build, mock_redis}
     let(:mock_redis) { TestSupport::MockRedis.new }
 
+    let(:key_prefix) { "cross_browser_test_batch:#{build}" }
+
     it "accepts a build id on initialize" do
       assert_equal build, results.build
     end
@@ -17,7 +19,7 @@ module EmberSecureBuilder
     end
 
     describe "#details" do
-      let(:detail_key) { "cross_browser_test_batch:#{build}:detail" }
+      let(:detail_key) { "#{key_prefix}:detail" }
 
       before do
         def mock_redis.get(*args); @get_params = args; '{"string": "blah blah"}'; end
@@ -53,7 +55,7 @@ module EmberSecureBuilder
       it "should lookup the members of the pending set" do
         results.pending_jobs
 
-        expected = [:smembers, "cross_browser_test_batch:#{build}:pending"]
+        expected = [:smembers, "#{key_prefix}:pending"]
 
         assert_redis_command expected
       end
@@ -69,7 +71,7 @@ module EmberSecureBuilder
       it "should lookup the members of the completed set" do
         results.completed_jobs
 
-        expected = [:smembers, "cross_browser_test_batch:#{build}:completed"]
+        expected = [:smembers, "#{key_prefix}:completed"]
 
         assert_redis_command expected
       end
@@ -82,7 +84,7 @@ module EmberSecureBuilder
     end
 
     describe "#results" do
-      let(:result_keys) { results.completed_jobs.map{|jid| "cross_browser_test_batch:#{build}:#{jid}:results" } }
+      let(:result_keys) { results.completed_jobs.map{|jid| "#{key_prefix}:#{jid}:results" } }
 
       before do
         def results.completed_jobs; ['fred', 'alex','rob']; end
@@ -105,69 +107,40 @@ module EmberSecureBuilder
       end
     end
 
-    describe "#upload_results" do
-      let(:fake_bucket)  { TestSupport::MockS3Bucket.new }
-      let(:results_path) { 'fred/flinstone' }
+    describe "#failed_jobs" do
 
+    end
+
+    describe "#save" do
       before do
-        def results.build_s3_bucket
-          @build_s3_bucket_called = true
-          TestSupport::MockS3Bucket.new
-        end
+        def results.upload(*args); @upload_args = args; @upload_called = true; end
+        def results.upload_called; @upload_called; end
+        def results.upload_args; @upload_args; end
 
-        def results.build_s3_bucket_called
-          @build_s3_bucket_called
-        end
+        def results.combined_results_hash; 'detailed results'; end
+        def results.summary_results_hash; 'summary results'; end
 
-        def results.combined_results_hash; 'random results'; end
-        def results.results_path; 'fred/flinstone'; end
+        def results.results_path; 'foo/bar'; end
       end
 
-      describe "when no results_path is specified" do
-        before do
-          def results.results_path; nil; end
-        end
+      it "calls upload" do
+        results.save
 
-        it "doesn't add any files to the bucket" do
-          results.upload_results(:bucket => fake_bucket)
-
-          assert_equal 0, fake_bucket.objects.length
-        end
-
-        it "doesn't call build_s3_bucket" do
-          results.upload_results
-
-          refute results.build_s3_bucket_called
-        end
+        assert_equal ['foo/bar/results.json', '"detailed results"'], results.upload_args
       end
 
-      it "calls build_s3_bucket if no bucket is provided" do
-        results.upload_results
+      it "doesn't call upload if results_path is nil" do
+        def results.results_path; nil; end
 
-        assert results.build_s3_bucket_called
+        results.save
+
+        refute results.upload_called
       end
 
-      it "uses the bucket if provided" do
-        results.upload_results(:bucket => fake_bucket)
+      it "writes the combined results to the batch's results key" do
+        results.save
 
-        refute results.build_s3_bucket_called
-      end
-
-      it "uploads files" do
-        results.upload_results(:bucket => fake_bucket)
-
-        assert_equal 1, fake_bucket.objects.length
-      end
-
-      it "saves data from combined_results_hash" do
-        results.upload_results(:bucket => fake_bucket)
-
-        expected_dest = results_path + "/results.json"
-        expected_dest = expected_dest.downcase.gsub(' ', '_')
-
-        s3_object = fake_bucket.objects[expected_dest]
-
-        assert_equal 'random results'.to_json, s3_object.source_path
+        assert_redis_command [:set, key_prefix + ":results", results.summary_results_hash.to_json]
       end
     end
 
@@ -186,8 +159,75 @@ module EmberSecureBuilder
       end
     end
 
+    describe "#summary_results_hash" do
+      before do
+        def results.details; {'build' => 'SOME SHA'}; end
+      end
+
+      describe "with failed jobs" do
+        before do
+          def results.job_results
+            {'fred' => {'passed' => false, 'browser' => 'opera', 'version' => '12'},
+             'barney' => {'passed' => true, 'browser' => 'chrome', 'version' => ''},
+             'wilma' => {'passed' => true, 'browser' => 'ie', 'version' => '9'},
+             'betty' => {'passed' => false, 'browser' => 'blah', 'version' => '99'}}
+          end
+        end
+
+        it "should indicate failure if a job didn't pass" do
+          refute results.summary_results_hash['passed?']
+        end
+
+        it "should include a list of failed browsers" do
+          expected = ['opera 12', 'blah 99']
+
+          assert_equal expected, results.summary_results_hash['failed']
+        end
+
+        it "should include a list of passed browsers" do
+          expected = ['chrome ', 'ie 9']
+
+          assert_equal expected, results.summary_results_hash['passed']
+        end
+
+        it "includes the batch details" do
+          assert_equal 'SOME SHA', results.summary_results_hash['build']
+        end
+      end
+
+      describe "without failed jobs" do
+        before do
+          def results.job_results
+            {'fred' => {'passed' => true, 'browser' => 'opera', 'version' => '12'},
+             'barney' => {'passed' => true, 'browser' => 'chrome', 'version' => ''},
+             'wilma' => {'passed' => true, 'browser' => 'ie', 'version' => '9'},
+             'betty' => {'passed' => true, 'browser' => 'blah', 'version' => '99'}}
+          end
+        end
+
+        it "should indicate failure if a job didn't pass" do
+          assert results.summary_results_hash['passed?']
+        end
+
+        it "should include an empty list of failed browsers" do
+          expected = []
+
+          assert_equal expected, results.summary_results_hash['failed']
+        end
+
+        it "should include a list of passed browsers" do
+          expected = ["opera 12", "chrome ", "ie 9", "blah 99"]
+
+          assert_equal expected, results.summary_results_hash['passed']
+        end
+
+        it "includes the batch details" do
+          assert_equal 'SOME SHA', results.summary_results_hash['build']
+        end
+      end
+    end
+
     describe "#cleanup" do
-      let(:key_prefix) { "cross_browser_test_batch:#{build}" }
 
       before do
         def results.completed_jobs; ['foo','bar','baz','biff']; end
