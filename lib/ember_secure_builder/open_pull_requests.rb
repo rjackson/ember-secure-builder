@@ -31,7 +31,7 @@ module EmberSecureBuilder
     end
 
     def save(path)
-      upload(path, summary)
+      upload(path, summary.to_json)
     end
 
     private
@@ -43,7 +43,7 @@ module EmberSecureBuilder
       if results = redis.get("cross_browser_test_batch:#{sha}:results")
         JSON.parse(results)
       else
-        if @queue_missing_worker
+        if @queue_missing_worker && redis.get("cross_browser_test_batch:#{sha}:detail").nil?
           @queue_missing_worker.perform_async(repo, pull_request_number, true)
         end
         {}
