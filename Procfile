@@ -1,4 +1,4 @@
-redis: redis-server --bind 127.0.0.1
+redis: redis-server --bind 127.0.0.1 --dir ./ --appendonly yes
 sidekiq-sauce: dotenv sidekiq --require ./lib/ember_secure_builder.rb --concurrency 7 --queue sauce_labs
 sidekiq-default: dotenv sidekiq --require ./lib/ember_secure_builder.rb --concurrency 5 --queue default
 web: rackup config.ru
