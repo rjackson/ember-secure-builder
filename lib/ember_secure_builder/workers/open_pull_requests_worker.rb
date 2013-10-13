@@ -9,8 +9,11 @@ module EmberSecureBuilder
 
     def perform
       OpenPullRequests.run!
+    rescue Octokit::TooManyRequests
+      # stop the default sidekiq retry cycle if we have
+      # hit the rate limit
     end
   end
 end
 
-Sidekiq::Cron::Job.create( name: 'Open Pull Request - 5 Minutes', cron: '*/5 * * * *', klass: 'EmberSecureBuilder::OpenPullRequestsWorker')
+Sidekiq::Cron::Job.create( name: 'Open Pull Request - 60 Minutes', cron: '0 * * * *', klass: 'EmberSecureBuilder::OpenPullRequestsWorker')
