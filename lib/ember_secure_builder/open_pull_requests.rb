@@ -7,8 +7,8 @@ module EmberSecureBuilder
     attr_accessor :repo, :redis
 
     def run!
-      new('emberjs/ember.js').save
-      new('emberjs/data').save
+      new('emberjs/ember.js').save('ember/pull_requests.json')
+      new('emberjs/data').save('ember-data/pull_requests.json')
     end
 
     def initialize(repo, options = {})
