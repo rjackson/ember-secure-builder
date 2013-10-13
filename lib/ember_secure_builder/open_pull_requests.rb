@@ -6,6 +6,11 @@ module EmberSecureBuilder
 
     attr_accessor :repo, :redis
 
+    def run!
+      new('emberjs/ember.js').save
+      new('emberjs/data').save
+    end
+
     def initialize(repo, options = {})
       self.repo  = repo
       self.redis = options.fetch(:redis) { Redis.new }

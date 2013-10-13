@@ -10,6 +10,7 @@ gem 'aws-sdk'
 gem 'sinatra'
 gem 'octokit'
 gem 'rest-client'
+gem 'sidekiq-cron'
 gem 'connection_pool'
 gem 'selenium-webdriver'
 gem 'ember-dev', github: 'emberjs/ember-dev',
