@@ -5,7 +5,7 @@ module EmberSecureBuilder
   class SauceLabsWorker
     include Sidekiq::Worker
 
-    sidekiq_options backtrace: true, :retry => 3
+    sidekiq_options backtrace: true, :retry => 3, :queue => :sauce_labs
 
     SAUCE_LABS_POOL = ConnectionPool.new(:size => 8) { "Must pass a block here, even though we don't care..." }
 
