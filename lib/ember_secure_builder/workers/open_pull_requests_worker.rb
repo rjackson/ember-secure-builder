@@ -16,4 +16,6 @@ module EmberSecureBuilder
   end
 end
 
-Sidekiq::Cron::Job.create( name: 'Open Pull Request - 60 Minutes', cron: '0 * * * *', klass: 'EmberSecureBuilder::OpenPullRequestsWorker')
+unless ENV['RACK_ENV'] == 'test'
+  Sidekiq::Cron::Job.create( name: 'Open Pull Request - 60 Minutes', cron: '0 * * * *', klass: 'EmberSecureBuilder::OpenPullRequestsWorker')
+end
