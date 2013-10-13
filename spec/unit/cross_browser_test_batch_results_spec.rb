@@ -83,7 +83,7 @@ module EmberSecureBuilder
       end
     end
 
-    describe "#results" do
+    describe "#job_results" do
       let(:result_keys) { results.completed_jobs.map{|jid| "#{key_prefix}:#{jid}:results" } }
 
       before do
@@ -102,6 +102,14 @@ module EmberSecureBuilder
         expected = {'fred' => {"lname" => 'flinstone'},
                     'alex' => {"lname" => 'navasardyan'},
                     'rob'  => {"lname" => 'jackson'}}
+
+        assert_equal expected, results.job_results
+      end
+
+      it "returns an empty hash if no results are available" do
+        def results.completed_jobs; []; end
+
+        expected = {}
 
         assert_equal expected, results.job_results
       end

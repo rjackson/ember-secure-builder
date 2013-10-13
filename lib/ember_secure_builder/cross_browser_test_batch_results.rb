@@ -81,6 +81,9 @@ module EmberSecureBuilder
 
     def build_job_results
       result_keys   = completed_jobs.map{|jid| key_prefix + ":#{jid}:results" }
+
+      return {} if result_keys.empty?
+
       result_values = redis.mget *result_keys
       parsed_values = result_values.map{|v| JSON.parse(v) }
 
