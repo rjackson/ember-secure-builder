@@ -28,7 +28,8 @@ module EmberSecureBuilder
         {'number' => 12312,
          'user' => { 'login' => 'rjackson' },
          'title' => 'Whoa, awesome!',
-         'head' => {'sha' => build}}
+         'head' => {'sha' => build},
+         'updated_at' => Time.now - 60 * 60 * 24 * 4}
       end
 
       before do

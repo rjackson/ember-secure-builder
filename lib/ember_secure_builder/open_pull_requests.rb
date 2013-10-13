@@ -43,16 +43,26 @@ module EmberSecureBuilder
 
     def pull_request_test_results(pull_request)
       sha = pull_request['head']['sha']
-      pull_request_number = pull_request['number']
 
       if results = redis.get("cross_browser_test_batch:#{sha}:results")
         JSON.parse(results)
       else
-        if @queue_missing_worker && redis.get("cross_browser_test_batch:#{sha}:detail").nil?
-          @queue_missing_worker.perform_async(repo, pull_request_number, true)
-        end
+        queue_asset_build pull_request
+
         {}
       end
+    end
+
+    def queue_asset_build(pull_request)
+      sha = pull_request['head']['sha']
+
+      return unless @queue_missing_worker
+      return unless redis.get("cross_browser_test_batch:#{sha}:detail").nil?
+      return unless pull_request['updated_at'] > Time.now - 60 * 60 * 24 * 14
+
+      pull_request_number = pull_request['number']
+
+      @queue_missing_worker.perform_async(repo, pull_request_number, true)
     end
 
     def fetch
