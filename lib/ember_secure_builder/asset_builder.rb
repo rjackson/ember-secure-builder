@@ -16,16 +16,16 @@ module EmberSecureBuilder
                   :pull_request_details
 
     def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
-      builder = new(repository, disable_auto_cleanup: true)
-      builder.load_from_pull_request(repository, pull_request_number)
-      builder.build
-      builder.upload
+      Dir.mktmpdir do |tmpdir|
+        builder = new(repository, disable_auto_cleanup: true, work_dir: Pathname.new(tmpdir))
+        builder.load_from_pull_request(repository, pull_request_number)
+        builder.build
+        builder.upload
 
-      if perform_cross_browser_tests
-        builder.queue_cross_browser_tests
+        if perform_cross_browser_tests
+          builder.queue_cross_browser_tests
+        end
       end
-
-      builder.cleanup
     end
 
     def initialize(project, options = nil)
