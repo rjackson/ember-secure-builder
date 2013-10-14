@@ -174,10 +174,7 @@ module EmberSecureBuilder
     end
 
     def completed?
-      response = RestClient.get sauce_labs_job_url, :content_type => :json, :accept => :json
-      payload  = JSON.parse(response.body)
-
-      payload['status'] == 'complete'
+      sauce_labs_job_details['status'] == 'complete'
     end
 
     def save_to_redis(redis = Redis.new)
@@ -190,10 +187,29 @@ module EmberSecureBuilder
       {browser: browser, test_url: url,
        platform: platform, version: version,
        result: result, passed: passed?,
-       build: build, tags: tags}
+       build: build, tags: tags,
+       screenshot_url: last_screenshot_url }
     end
 
     private
+
+    def sauce_labs_job_details
+      response = RestClient.get sauce_labs_job_url, :content_type => :json, :accept => :json
+
+      JSON.parse(response.body)
+    end
+
+    def sauce_labs_assets
+      response = RestClient.get sauce_labs_job_url + '/assets', :content_type => :json, :accept => :json
+
+      JSON.parse(response.body)
+    end
+
+    def last_screenshot_url
+      filename = sauce_labs_assets['screenshots'].last
+
+      "https://saucelabs.com/jobs/#{job_id}/#{filename}"
+    end
 
     def sauce_labs_job_url
       "https://#{username}:#{access_key}@saucelabs.com/rest/v1/#{username}/jobs/#{job_id}"
