@@ -35,6 +35,12 @@ module EmberSecureBuilder
       it "returns the batch details" do
         assert_equal({"string" => 'blah blah'}, results.details)
       end
+
+      it "returns an empty hash if the no details exist" do
+        def mock_redis.get(*args); nil; end
+
+        assert_equal({}, results.details)
+      end
     end
 
     describe "#completed?" do

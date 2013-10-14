@@ -18,7 +18,7 @@ module EmberSecureBuilder
     end
 
     def details
-      @details ||= JSON.parse(redis.get(key_prefix + ":detail"))
+      @details ||= build_details
     end
 
     def completed?
@@ -78,6 +78,16 @@ module EmberSecureBuilder
     end
 
     private
+
+    def build_details
+      raw_details = redis.get key_prefix + ":detail"
+
+      if raw_details
+        JSON.parse(raw_details)
+      else
+        {}
+      end
+    end
 
     def build_job_results
       result_keys   = completed_jobs.map{|jid| key_prefix + ":#{jid}:results" }
