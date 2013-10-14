@@ -43,7 +43,7 @@ module EmberSecureBuilder
       it "defaults the good_repo to emberjs/ember.js" do
         builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
-        assert_equal 'https://github.com/rjackson/ember.js.git', builder.good_repo
+        assert_equal 'https://github.com/rjackson/ember.js', builder.good_repo
       end
 
       it "defaults the good_batch to master" do
@@ -302,7 +302,9 @@ module EmberSecureBuilder
           :name  => 'Whoo hoo',
           :build => 'some sha',
           :tags  => ['whoo-hoo', builder.suspect_branch],
-          :results_path => builder.asset_destination_path
+          :results_path => builder.asset_destination_path,
+          :repo_url => suspect_repo_url,
+          :commit_url => suspect_repo_url + "/commit/some sha"
         }
 
         mock_worker.expect :queue, nil, [expected_argument]

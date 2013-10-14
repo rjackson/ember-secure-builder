@@ -12,7 +12,8 @@ module EmberSecureBuilder
                   :project, :good_repo, :good_branch,
                   :asset_source_path, :asset_destination_path,
                   :pull_request_number, :last_suspect_repo_commit,
-                  :cross_browser_test_batch_class, :disable_auto_cleanup
+                  :cross_browser_test_batch_class, :disable_auto_cleanup,
+                  :pull_request_details
 
     def self.publish_pull_request(repository, pull_request_number, perform_cross_browser_tests = false)
       builder = new(repository, disable_auto_cleanup: true)
@@ -56,6 +57,7 @@ module EmberSecureBuilder
       self.suspect_repo             = prefix + pr.head.repo.full_name
       self.suspect_branch           = pr.head.ref
       self.pull_request_number      = pull_request_number
+      self.pull_request_details     = pr
       self.last_suspect_repo_commit = pr.head.sha
     end
 
@@ -126,23 +128,24 @@ module EmberSecureBuilder
     end
 
     def cross_browser_test_defaults
-      tags = [project_prefix]
-      name = project_name
+      options = {:tags => [project_prefix],
+                 :url  => test_url,
+                 :build => last_suspect_repo_commit,
+                 :results_path => asset_destination_path,
+                 :name => project_name,
+                 :repo_url => suspect_repo,
+                 :commit_url => suspect_repo + "/commit/#{last_suspect_repo_commit}"
+      }
 
       if pull_request_number
-        name += " PR ##{pull_request_number}"
-        tags << "PR ##{pull_request_number}"
+        options[:name] += " PR ##{pull_request_number}"
+        options[:tags] << "PR ##{pull_request_number}"
+        options[:pull_request_url] = good_repo + "/pull/#{pull_request_number}"
       else
-        tags << "#{suspect_branch}"
+        options[:tags] << "#{suspect_branch}"
       end
 
-      {
-        :url   => test_url,
-        :name  => name,
-        :build => last_suspect_repo_commit,
-        :tags  => tags,
-        :results_path => asset_destination_path
-      }
+      options
     end
 
     private
@@ -150,14 +153,14 @@ module EmberSecureBuilder
     def project_details
       case project
       when 'emberjs/ember.js'
-        {repo: 'https://github.com/rjackson/ember.js.git',
+        {repo: 'https://github.com/rjackson/ember.js',
          branch: 'static_test_generator',
          name: 'Ember',
          prefix: 'ember',
          files: %w{ember.js ember-spade.js ember-tests.js ember-tests.html}
         }
       when 'emberjs/data'
-        {repo: 'https://github.com/rjackson/data.git',
+        {repo: 'https://github.com/rjackson/data',
          branch: 'static_test_generator',
          name: 'Ember Data',
          prefix: 'ember-data',

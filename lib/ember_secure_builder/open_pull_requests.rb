@@ -27,11 +27,19 @@ module EmberSecureBuilder
     end
 
     def pull_request_details(pull_request)
+      prefix   = 'https://github.com/'
+
+      sha      = pull_request['head']['sha']
+      source_repo_url = prefix + pull_request['head']['repo']['full_name']
+
       {
         number: pull_request['number'],
         user: pull_request['user']['login'],
         title: pull_request['title'],
         build: pull_request['head']['sha'],
+        repo_url: source_repo_url,
+        commit_url: source_repo_url + "/commit/#{sha}",
+        pull_request_url: prefix + repo + "/pull/#{pull_request['number']}",
       }.merge(pull_request_test_results(pull_request))
     end
 

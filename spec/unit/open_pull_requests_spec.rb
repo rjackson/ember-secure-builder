@@ -28,7 +28,7 @@ module EmberSecureBuilder
         {'number' => 12312,
          'user' => { 'login' => 'rjackson' },
          'title' => 'Whoa, awesome!',
-         'head' => {'sha' => build},
+         'head' => {'sha' => build, 'repo' =>{'full_name' => 'foo/bar'}},
          'updated_at' => Time.now - 60 * 60 * 24 * 4}
       end
 
@@ -44,6 +44,9 @@ module EmberSecureBuilder
         assert_equal 'rjackson', output[:user]
         assert_equal 'Whoa, awesome!', output[:title]
         assert_equal 'SOME SHA GOES HERE', output[:build]
+        assert_equal "https://github.com/foo/bar", output[:repo_url]
+        assert_equal "https://github.com/#{repo}/pull/12312", output[:pull_request_url]
+        assert_equal "https://github.com/foo/bar/commit/#{build}", output[:commit_url]
       end
 
       it "looks up the builds results" do
