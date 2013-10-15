@@ -158,8 +158,8 @@ module EmberSecureBuilder
         sauce.run!
 
         expected_method_calls = [:navigate_to_url, :hide_passing_tests,
+                                 :wait_for_completion, :quit_driver,
                                  :wait_for_completion, :save_result,
-                                 :quit_driver, :wait_for_completion,
                                  :print_message_to_console]
 
         assert_equal expected_method_calls, sauce.method_calls
