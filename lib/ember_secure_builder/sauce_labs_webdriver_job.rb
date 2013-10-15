@@ -184,10 +184,9 @@ module EmberSecureBuilder
     end
 
     def build_results_hash
-      {browser: browser, test_url: url,
+      {browser: browser,
        platform: platform, version: version,
        result: result, passed: passed?,
-       build: build, tags: tags,
        screenshot_url: last_screenshot_url }
     end
 
