@@ -189,19 +189,19 @@ module EmberSecureBuilder
         end
 
         it "should indicate failure if a job didn't pass" do
-          refute results.summary_results_hash['passed?']
+          refute results.summary_results_hash['passed']
         end
 
         it "should include a list of failed browsers" do
           expected = ['opera 12', 'blah 99']
 
-          assert_equal expected, results.summary_results_hash['failed']
+          assert_equal expected, results.summary_results_hash['failed_tests']
         end
 
         it "should include a list of passed browsers" do
           expected = ['chrome ', 'ie 9']
 
-          assert_equal expected, results.summary_results_hash['passed']
+          assert_equal expected, results.summary_results_hash['passed_tests']
         end
 
         it "includes the batch details" do
@@ -220,19 +220,19 @@ module EmberSecureBuilder
         end
 
         it "should indicate failure if a job didn't pass" do
-          assert results.summary_results_hash['passed?']
+          assert results.summary_results_hash['passed']
         end
 
         it "should include an empty list of failed browsers" do
           expected = []
 
-          assert_equal expected, results.summary_results_hash['failed']
+          assert_equal expected, results.summary_results_hash['failed_tests']
         end
 
         it "should include a list of passed browsers" do
           expected = ["opera 12", "chrome ", "ie 9", "blah 99"]
 
-          assert_equal expected, results.summary_results_hash['passed']
+          assert_equal expected, results.summary_results_hash['passed_tests']
         end
 
         it "includes the batch details" do

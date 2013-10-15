@@ -62,7 +62,7 @@ module EmberSecureBuilder
       passed_browsers = passed_jobs.map{|job| [job['browser'], job['version']].join(' ') }
       failed_browsers = failed_jobs.map{|job| [job['browser'], job['version']].join(' ') }
 
-      details.merge('passed?' => passed, 'passed' => passed_browsers, 'failed' => failed_browsers)
+      details.merge('passed' => passed, 'passed_tests' => passed_browsers, 'failed_tests' => failed_browsers)
     end
 
     def cleanup
