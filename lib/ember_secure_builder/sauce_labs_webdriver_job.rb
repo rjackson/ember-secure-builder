@@ -91,9 +91,9 @@ module EmberSecureBuilder
       navigate_to_url
       hide_passing_tests
       wait_for_completion
-      save_result
       quit_driver
       wait_for_completion break_on_result: false
+      save_result
 
       print_message_to_console
     end
@@ -153,7 +153,7 @@ module EmberSecureBuilder
     end
 
     def job_id
-      driver.instance_variable_get("@bridge").instance_variable_get("@session_id")
+      @job_id ||= driver.instance_variable_get("@bridge").instance_variable_get("@session_id")
     end
 
     def save_result
