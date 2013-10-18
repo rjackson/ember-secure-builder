@@ -43,13 +43,13 @@ module EmberSecureBuilder
       it "defaults the good_repo to emberjs/ember.js" do
         builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
-        assert_equal 'https://github.com/rjackson/ember.js', builder.good_repo
+        assert_equal 'https://github.com/emberjs/ember.js', builder.good_repo
       end
 
       it "defaults the good_batch to master" do
         builder = AssetBuilder.new(project, suspect_repo: 'blah blah', suspect_branch: 'foo bar branch')
 
-        assert_equal 'static_test_generator', builder.good_branch
+        assert_equal 'master', builder.good_branch
       end
     end
 
@@ -99,7 +99,7 @@ module EmberSecureBuilder
       end
 
       it "can load the suspect_repo" do
-        assert_equal builder.suspect_repo, 'https://github.com/rjackson/ember.js'
+        assert_equal 'https://github.com/rjackson/ember.js', builder.suspect_repo
       end
 
       it "can load the suspect branch" do
