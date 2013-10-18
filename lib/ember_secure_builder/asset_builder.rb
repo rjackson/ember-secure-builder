@@ -153,15 +153,15 @@ module EmberSecureBuilder
     def project_details
       case project
       when 'emberjs/ember.js'
-        {repo: 'https://github.com/rjackson/ember.js',
-         branch: 'static_test_generator',
+        {repo: 'https://github.com/emberjs/ember.js',
+         branch: 'master',
          name: 'Ember',
          prefix: 'ember',
          files: %w{ember.js ember-spade.js ember-tests.js ember-tests.html}
         }
       when 'emberjs/data'
-        {repo: 'https://github.com/rjackson/data',
-         branch: 'static_test_generator',
+        {repo: 'https://github.com/emberjs/data',
+         branch: 'master',
          name: 'Ember Data',
          prefix: 'ember-data',
          files: %w{ember-spade.js ember-data-tests.js ember-data-tests.html}
