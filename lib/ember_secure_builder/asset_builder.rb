@@ -8,7 +8,7 @@ module EmberSecureBuilder
     class CloneRepoError < StandardError; end
 
     attr_accessor :suspect_repo, :suspect_branch, :project,
-                  :work_dir,     :debug, :env,
+                  :work_dir, :debug, :env,
                   :project, :good_repo, :good_branch,
                   :asset_source_path, :asset_destination_path,
                   :pull_request_number, :last_suspect_repo_commit,
@@ -87,12 +87,29 @@ module EmberSecureBuilder
       FileUtils.cp_r suspect_repo_local_path.join('packages').to_s, good_repo_local_path.to_s
     end
 
-    def build
+    def cli_build
       clone_repos
       copy_suspect_packages
 
       Bundler.with_clean_env do
-        system("cd #{good_repo_local_path} && bundle install && npm install && bundle exec rake dist ember:generate_static_test_site")
+        system("cd #{good_repo_local_path} && npm install && ember build --environment production")
+      end
+    end
+
+    def grunt_build
+      clone_repos
+      copy_suspect_packages
+
+      Bundler.with_clean_env do
+        system("cd #{good_repo_local_path} && npm install && grunt dist")
+      end
+    end
+
+    def build
+      if project.match(/data/)
+        grunt_build
+      else
+        cli_build
       end
     end
 
