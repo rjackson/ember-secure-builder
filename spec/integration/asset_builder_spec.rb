@@ -15,8 +15,13 @@ module EmberSecureBuilder
 
         Dir.chdir local_path.to_s do
           Bundler.with_clean_env do
-            assert system("bundle install")
-            assert system("rake dist")
+            assert system("npm install")
+
+            if project == "emberjs/data"
+              assert system("grunt dist")
+            else
+              assert system("ember build --environment production")
+            end
           end
         end
 
@@ -32,7 +37,7 @@ module EmberSecureBuilder
       let(:asset_path) { 'dist/ember.js' }
 
       it "should match the known good assets" do
-        assert builder.build
+        assert builder.cli_build
 
         assert_equal known_good_asset, File.read(builder.asset_source_path.join('ember.js'))
       end
@@ -43,7 +48,7 @@ module EmberSecureBuilder
       let(:asset_path) { 'dist/ember-data.js' }
 
       it "should match the known good assets" do
-        assert builder.build
+        assert builder.grunt_build
 
         assert_equal known_good_asset, File.read(builder.asset_source_path.join('ember-data.js'))
       end

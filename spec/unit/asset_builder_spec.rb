@@ -162,7 +162,7 @@ module EmberSecureBuilder
       end
     end
 
-    describe 'build' do
+    describe 'cli_build' do
       before do
         def builder.clone_repos; @clone_repos_called = true; end
         def builder.copy_suspect_packages; @copy_suspect_packages_called = true; end
@@ -178,24 +178,87 @@ module EmberSecureBuilder
       end
 
       it "calls clone_repo" do
-        builder.build
+        builder.cli_build
 
         assert builder.clone_repos_called
       end
 
       it "calls copy_suspect_packages" do
-        builder.build
+        builder.cli_build
 
         assert builder.copy_suspect_packages
       end
 
-      it "calls rake dist from the good repo dir" do
-        builder.build
+      it "calls ember build from the good repo dir" do
+        builder.cli_build
 
         command = builder.system_commands_called.first
-        expected_command = "cd #{builder.work_dir.join('good')} && bundle install && npm install && bundle exec rake dist ember:generate_static_test_site"
+        expected_command = "cd #{builder.work_dir.join('good')} && npm install && ember build --environment production"
 
         assert_equal expected_command, command[:command]
+      end
+    end
+
+    describe 'grunt_build' do
+      before do
+        def builder.clone_repos; @clone_repos_called = true; end
+        def builder.copy_suspect_packages; @copy_suspect_packages_called = true; end
+
+        def builder.clone_repos_called; @clone_repos_called; end
+        def builder.copy_suspect_packages_called; @copy_suspect_packages_called; end
+
+        def builder.system(command)
+          @commands ||= []
+          @commands << {command: command, env: ENV, cwd: Dir.getwd}
+        end
+        def builder.system_commands_called; @commands; end
+      end
+
+      it "calls clone_repo" do
+        builder.grunt_build
+
+        assert builder.clone_repos_called
+      end
+
+      it "calls copy_suspect_packages" do
+        builder.grunt_build
+
+        assert builder.copy_suspect_packages
+      end
+
+      it "calls ember build from the good repo dir" do
+        builder.grunt_build
+
+        command = builder.system_commands_called.first
+        expected_command = "cd #{builder.work_dir.join('good')} && npm install && grunt dist"
+
+        assert_equal expected_command, command[:command]
+      end
+    end
+
+    describe "#build" do
+      def stubbed_builder(project)
+        builder = AssetBuilder.new(project)
+        def builder.cli_build; @cli_build_called = true; end
+        def builder.grunt_build; @grunt_build_called = true; end
+
+        def builder.cli_build_called; @cli_build_called; end
+        def builder.grunt_build_called; @grunt_build_called; end
+        builder
+      end
+
+      it "calls cli_build when ember.js" do
+        builder = stubbed_builder("ember/ember.js")
+        builder.build
+        assert builder.cli_build_called
+        assert !builder.grunt_build_called
+      end
+
+      it "calls grunt_build when ember-data" do
+        builder = stubbed_builder("ember/data")
+        builder.build
+        assert builder.grunt_build_called
+        assert !builder.cli_build_called
       end
     end
 
